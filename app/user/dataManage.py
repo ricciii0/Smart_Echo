@@ -12,8 +12,12 @@ import os
 '''
 在这份文件中，功能主要以函数为组织
 函数功能包括
-添加文件到资料管理系统
-
+1、添加文件到资料管理系统（支持批量的添加）
+2、删除指定的文件
+3、根据时间或者科目进行筛洗
+4、支持搜索文件名称
+5、支持下载文件
+6、支持先筛选后搜索文件名称，搜索范围会缩小到筛选后
 '''
 # 定义全局变量
 host='localhost'
@@ -95,7 +99,7 @@ def seekfile(keyword):
             results = cursor.fetchall()
             if results:
                 for filename in results:
-                    print(filename)
+                    print(filename['filename'])
             else:
                 print("搜索为空,请检查输入有无错别字等")
     finally:
@@ -118,6 +122,22 @@ def filterfiles(timebegin,timeend,subject):
     finally:
         connection.close()
 
+#尝试把筛选功能和搜索功能进行合并处理，试一下
+def seekfilterfiles(timebegin,timeend,subject='',keyword =''):
+    connection = getconnection()
+    try:
+        with connection.cursor() as cursor:
+            sql = "SELECT * FROM files WHERE uploadtime BETWEEN %s AND %s AND subject LIKE %s AND filename LIKE %s"
+            cursor.execute(sql, (timebegin,timeend,f'%{subject}%',f'%{keyword}%'))
+            afterfiles = cursor.fetchall()
+            if afterfiles:
+                for file in afterfiles:
+                    print(f"fileid={file['id']} filename={file['filename']} ")
+            else:
+                print("没有结果哦，请重新检查你的筛选")
+
+    finally:
+        connection.close()
 
 # 删除功能模块
 def deletefile(id):
@@ -129,6 +149,7 @@ def deletefile(id):
             connection.commit()
     finally:
         connection.close()
+
 
 #更新文件内容的函数
 def updatefile(id,newfilepath):
@@ -169,15 +190,13 @@ def deletedata():
 
 
 
-
-
 if __name__ == '__main__':
     main()
     filepath="C:\\Users\\86137\\Desktop\\output1.txt"
     filename=os.path.basename(filepath)
     #storefile(filename,filepath)
 
-    seekfile("图")
+    #seekfile("")
 
     folderpath = "C:\\Users\\86137\\Desktop\\sqltest\\input"
     # batchimport(folderpath)
@@ -193,7 +212,7 @@ if __name__ == '__main__':
     formatted_date = now.strftime('%Y-%m-%d')
     print(formatted_date)
 
-    filterfiles("2024-09-03 09:50:04","2024-09-03 19:50:04","DefaultFolder")
+    seekfilterfiles("2024-09-03 09:50:04","2024-09-04 19:50:04")
 
 
 
