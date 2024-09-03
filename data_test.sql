@@ -1,0 +1,28 @@
+-- 清除数据库中同名的表格
+DROP DATABASE IF EXISTS `data_test`;
+CREATE DATABASE `data_test`;
+USE `data_test`;
+
+SET NAMES utf8mb4;
+SET FOREIGN_KEY_CHECKS=0;
+
+DROP TABLE IF EXISTS `Teacher`;
+CREATE TABLE `Teacher`(
+    id INT(11) NOT NULL AUTO_INCREMENT,
+    name VARCHAR(25) CHARACTER SET utf8mb4 NULL DEFAULT NULL,
+    PRIMARY KEY (id)
+);
+
+DROP TABLE IF EXISTS files;
+CREATE TABLE files(
+    id INT(11) NOT NULL AUTO_INCREMENT,
+    filename VARCHAR(25) CHARACTER SET utf8mb4 NULL DEFAULT NULL,
+    filecontent LONGBLOB NOT NULL,
+    autoclass VARCHAR(25) NULL DEFAULT NULL,
+    teaclass VARCHAR(25) NULL DEFAULT NULL,
+    PRIMARY KEY (id)
+);
+
+INSERT INTO `Teacher`(id, name) VALUES
+(1,'449'),
+(2,'梁耀欣');
