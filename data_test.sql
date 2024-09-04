@@ -6,13 +6,7 @@ USE `data_test`;
 SET NAMES utf8mb4;
 SET FOREIGN_KEY_CHECKS=0;
 
-DROP TABLE IF EXISTS `Teacher`;
-CREATE TABLE `Teacher`(
-    id INT(11) NOT NULL AUTO_INCREMENT,
-    name VARCHAR(25) CHARACTER SET utf8mb4 NULL DEFAULT NULL,
-    PRIMARY KEY (id)
-);
-
+# 这是资源管理的一张表格
 DROP TABLE IF EXISTS files;
 CREATE TABLE files(
     id INT(11) NOT NULL AUTO_INCREMENT,
@@ -22,6 +16,19 @@ CREATE TABLE files(
     uploadtime DATETIME DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (id)
 );
+
+# 弄一个在线练习的表格，感觉在线练习的难度会远远大于资料管理
+# 所有的表格都是只在服务器端口创建一个，其中不同用户的条目使用用户id进行区分
+DROP TABLE IF EXISTS practices;
+CREATE TABLE practices(
+    id INT(11) NOT NULL AUTO_INCREMENT,
+    class VARCHAR(25) NOT NULL
+
+);
+
+
+
+
 
 INSERT INTO `Teacher`(id, name) VALUES
 (1,'449'),

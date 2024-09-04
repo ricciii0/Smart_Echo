@@ -18,6 +18,7 @@ import os
 4、支持搜索文件名称
 5、支持下载文件
 6、支持先筛选后搜索文件名称，搜索范围会缩小到筛选后
+7、支持更改文件（但好像没啥用）
 '''
 # 定义全局变量
 host='localhost'
@@ -151,7 +152,7 @@ def deletefile(id):
         connection.close()
 
 
-#更新文件内容的函数
+#更新文件内容的函数,好像不是那么的需要
 def updatefile(id,newfilepath):
     newfilename=os.path.basename(newfilepath)
     connection = getconnection()
