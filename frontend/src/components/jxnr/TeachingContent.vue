@@ -11,6 +11,9 @@
       @logout="handleLogout" 
     />
 
+
+    
+
       <div class="content-area">
         <div class="search-bar">
           <input type="text" v-model="resourceName" placeholder="讲义名称" />

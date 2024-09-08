@@ -25,7 +25,10 @@
         <div v-if="role === 'teacher'">
           <input type="text" v-model="teacherId" placeholder="教师号" required />
           <input type="text" v-model="teacherName" placeholder="姓名" required />
-		  
+          <input type="text" v-model="teacherSubject" placeholder="科目" required />
+          <input type="text" v-model="teacherEmail" place holder="邮箱号" required />
+
+
 		  <input type="password" v-model="password" placeholder="密码" required />
 		  <input type="password" v-model="confirmPassword" placeholder="确认密码" required />
         </div>
@@ -77,7 +80,7 @@ export default {
 <style scoped>
 .register-page {
   height: 100vh; /* 视口高度 */
-  background: url('../img/background.png') no-repeat center center fixed; /* 背景图片 */
+  background: url('../../img/background.png') no-repeat center center fixed; /* 背景图片 */
   background-size: cover; /* 背景图片覆盖 */
   display: flex; /* 使用 flexbox 居中 */
   justify-content: center; /* 水平居中 */
