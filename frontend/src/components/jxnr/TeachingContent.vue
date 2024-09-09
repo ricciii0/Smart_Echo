@@ -11,6 +11,9 @@
       @logout="handleLogout" 
     />
 
+
+    
+
       <div class="content-area">
         <div class="search-bar">
           <input type="text" v-model="resourceName" placeholder="讲义名称" />
@@ -19,6 +22,8 @@
             <option value="2024-08-20">2024-08-20</option>
           </select>
           <button @click="searchResources">查询</button>
+                    <input type="file" ref="uploadFile" />
+          <button @click="uploadFile">上传</button>
         </div>
 
         <table class="resource-table">
@@ -42,6 +47,7 @@
               <td>
                 <button @click="viewResource(resource)">查看</button>
                 <button @click="downloadResource(resource)">下载</button>
+                <button @click="deleteResource(resource)">删除</button>
               </td>
             </tr>
           </tbody>
@@ -135,6 +141,29 @@
 	        this.currentPage = page;
 	      }
 	    },
+     uploadFile() {
+      const fileInput = this.$refs.uploadFile;
+      if (fileInput && fileInput.files.length > 0) {
+        const file = fileInput.files[0];
+        // 上传文件逻辑
+        alert(`上传文件: ${file.name}`);
+      } else {
+        alert('请选择一个文件进行上传');
+      }
+    },
+    deleteResource(resource) {
+      // 删除单个资源逻辑
+      alert(`删除: ${resource.name}`);
+    },
+    deleteSelected() {
+      // 删除选中的资源逻辑
+      const selectedResources = this.resources.filter(r => r.selected);
+      if (selectedResources.length > 0) {
+        alert(`删除选中的资源: ${selectedResources.map(r => r.name).join(', ')}`);
+      } else {
+        alert('请选择要删除的资源');
+      }
+    },
     deleteSelected() {
       // 删除选中的资源逻辑
       alert('删除功能尚未实现');

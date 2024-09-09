@@ -4,7 +4,18 @@
       <h1>忘记密码</h1>
       <p>请输入您的邮箱以重置密码：</p>
       <input type="email" v-model="email" placeholder="请输入邮箱" required />
-      <button @click="resetPassword">重置密码</button>
+       <!-- 验证码输入框 -->
+      <div class="verification-container">
+        <input type="text" v-model="verificationCode" placeholder="请输入验证码" required />
+        <button class="send-code-btn" @click="sendVerificationCode">发送验证码</button>
+      </div>
+        <router-link
+        v-if="verificationCode === correctCode"
+        to="/reset-password"
+        class="router-link-btn"
+      >
+        确定
+      </router-link>
       <div class="link" @click="$router.push('/')">返回登录</div>
     </div>
   </div>
@@ -15,12 +26,18 @@ export default {
   data() {
     return {
       email: '',
+       verificationCode: '',
+      correctCode: '123456', // 假设这是正确的验证码，实际情况应该从服务器获取并验证
+
     };
   },
   methods: {
-    resetPassword() {
-      alert(`重置密码链接已发送到 ${this.email}`);
+     sendVerificationCode() {
+      alert(`验证码已发送到 ${this.email}`);
     },
+
+
+
   },
 };
 </script>
@@ -28,7 +45,7 @@ export default {
 <style scoped>
 .forgot-password-page {
   height: 100vh; /* 视口高度 */
-  background: url('../img/background.png') no-repeat center center fixed; /* 背景图片 */
+  background: url('../../img/background.png') no-repeat center center fixed; /* 背景图片 */
   background-size: cover; /* 背景图片覆盖 */
   display: flex; /* 使用 flexbox 居中 */
   justify-content: center; /* 水平居中 */
@@ -48,6 +65,31 @@ input[type="email"] {
   width: 80%; /* 输入框宽度 */
   padding: 12px; /* 内边距 */
   margin: 8px 0; /* 上下外边距 */
+}
+input[type="text"] {
+  width:50%;
+  padding:12px;
+  display:flex;
+
+}
+
+.verification-container {
+  display: flex;
+
+  align-items: center;
+    justify-content: center; /* 居中 */
+
+}
+
+.send-code-btn {
+  width:100px;
+  padding: 12px;
+  margin-left: 10px;
+  background-color: #5c6bc0; /* 按钮颜色 */
+  color: white; /* 按钮文本颜色 */
+  border: none; /* 去掉边框 */
+  border-radius: 5px; /* 圆角 */
+  cursor: pointer; /* 鼠标样式 */
 }
 
 button {
