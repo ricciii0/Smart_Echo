@@ -16,7 +16,6 @@
           <input type="text" v-model="studentId" placeholder="学号" required />
           <input type="text" v-model="studentName" placeholder="姓名" required />
           <input type="text" v-model="studentClass" placeholder="班级" required />
-		  
 		  <input type="password" v-model="password" placeholder="密码" required />
 		  <input type="password" v-model="confirmPassword" placeholder="确认密码" required />
           <div v-if="classError" class="error">{{ classError }}</div>
