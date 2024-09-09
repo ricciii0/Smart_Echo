@@ -1,8 +1,9 @@
-from app import db
+from mydatabase import db
 from flask_login import UserMixin
 import datetime
 import bcrypt
 from enum import Enum
+
 
 class UserType(Enum):
     STUDENT = "student"

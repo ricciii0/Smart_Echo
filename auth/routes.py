@@ -1,14 +1,6 @@
-from enum import verify
-from msilib.schema import Class
-
-from flask import Blueprint, render_template, redirect, url_for, request, flash, jsonify,session
+from flask import Blueprint, flash, jsonify,session,request
 from flask_login import login_user, login_required, logout_user, current_user
-from socks import method
-from sympy import content
 from wtforms.validators import email
-
-from app import db
-from auth import auth_bp
 from models.user import User
 from models.teacher import Teacher
 from models.student import Student
@@ -17,7 +9,9 @@ from email.utils import formataddr
 import random
 import smtplib
 
-@auth_bp.route('/login', methods=['POST','GET'])
+auth=Blueprint('auth', __name__)
+
+@auth.route('/login', methods=['POST','GET'])
 def login():
     if request.method == "POST":
         data = request.get_json()
@@ -39,8 +33,10 @@ def login():
             })
         else:
             return jsonify({'error':'Invalid user id or password'}), 401
+    else:
+        return jsonify({'error':'Method not allowed'}), 405
 
-@auth_bp.route('/register', methods=['POST','GET'])
+@auth.route('/register', methods=['POST','GET'])
 def register():
     if request.method == "POST":
         data = request.get_json()
@@ -72,6 +68,8 @@ def register():
                 class2=class2
             )
             try:
+                from flask_sqlalchemy import SQLAlchemy
+                db=SQLAlchemy()
                 db.session.add_all([new_teacher_user,new_teacher])
                 db.session.commit()
                 return jsonify({'message': 'Teacher registered successfully'}), 201
@@ -98,30 +96,17 @@ def register():
                 student_id=student_id,
                 class_id=class_id
             )
-            try:
-                db.session.add_all([new_student_user, new_student])
-                db.session.commit()
-                return jsonify({'message': 'Student registered successfully'}), 201
-            except Exception as e:
-                db.session.rollback()
-                return jsonify({'error': 'Registration failed', 'details': str(e)}), 500
+            # try:
+            #     db.session.add_all([new_student_user, new_student])
+            #     db.session.commit()
+            #     return jsonify({'message': 'Student registered successfully'}), 201
+            # except Exception as e:
+            #     db.session.rollback()
+            #     return jsonify({'error': 'Registration failed', 'details': str(e)}), 500
 
 
-@auth_bp.route('/forgot', methods=['GET', 'POST'])
+@auth.route('/forgot', methods=['GET', 'POST'])
 def forgot():
-    # if request.method == "POST":
-    #     receiver_email=request.form['email']
-    #     user=User.query.filter_by(email=receiver_email).first()
-    #     if user:
-    #         receiver_name=user.name
-    #         vertification_code=str(random.randint(100000,999999))
-    #         email_content = f"【SmartEcho】您的验证码是：{vertification_code}"
-    #         send_email(content=email_content,receiver_name=receiver_name,receiver_email=receiver_email)
-    #         codes_in=request.form['codes']
-    #         if codes_in==vertification_code:
-    #             session['user_reset_pwd']=user
-    #             return redirect(url_for('/auth/forgot/reset'))
-    # return render_template()
     if request.method == "POST":
         data = request.get_json()
         if not data:
@@ -142,7 +127,7 @@ def forgot():
         else:
             return jsonify({'error':'Invalid email address'}), 401
 
-@auth_bp.route('/forgot/verify', methods=['GET', 'POST'])
+@auth.route('/forgot/verify', methods=['GET', 'POST'])
 def forgot_verify():
     if request.method == "POST":
         data = request.get_json()
@@ -155,7 +140,7 @@ def forgot_verify():
         else:
             return jsonify({'error':'Wrong code'}), 401
 
-@auth_bp.route('/forgot/reset', methods=['GET', 'POST'])
+@auth.route('/forgot/reset', methods=['GET', 'POST'])
 def reset():
     if request.method == "POST":
         data = request.get_json()
@@ -167,7 +152,7 @@ def reset():
         user.set_password(password)
         return jsonify({'messages':'Password reset successfully'}),200
 
-@auth_bp.route('/logout')
+@auth.route('/logout')
 @login_required
 def logout():
     logout_user()
@@ -185,7 +170,7 @@ def send_email(receiver_name,receiver_email,content,sender_name="Smart Echo", se
         # 使用SMTP服务发送邮件
         server = smtplib.SMTP("smtp-mail.outlook.com", 587)
         server.starttls()
-        server.login(sender_email, "tmclbjjmxmmeemvt")  # 你的邮箱账户和密码
+        server.login(sender_email, "tmclbjjmxmmeemvt")  # 邮箱账户和密码
 
         # 发送邮件
         server.sendmail(sender_email, [receiver_email], msg.as_string())
