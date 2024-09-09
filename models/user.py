@@ -30,3 +30,6 @@ class User(UserMixin, db.Model):
         salt=bcrypt.gensalt()
         hashed_password = bcrypt.hashpw(password.encode('utf-8'), salt)
         self.password=hashed_password.decode('utf-8')
+
+    def check_password(self, password):
+        return bcrypt.checkpw(password.encode('utf-8'), self.password.encode('utf-8'))

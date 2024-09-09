@@ -4,6 +4,7 @@
 structure:
 /login                      //初始页面
 ------/register             //注册 成功后返回到登录
+------/forgot
 
 /student                    //学生主页面
 
