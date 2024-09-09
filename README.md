@@ -31,3 +31,5 @@ structure:
 PLSH4-EFFUC-GY28C-42ZDC-N8BWN
 qwnhyknwpxejfhuj
 
+项目运行前请先cd .\frontend\
+然后在命令行输入npm run dev编译

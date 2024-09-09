@@ -12,7 +12,7 @@ import SocialInteraction from'../components/sqjl/SocialInteraction.vue';
 import teaSocialInteraction from'../components/sqjl/teaSocialInteraction.vue';
 import OnlineExercise from'../components/zxlx/OnlineExercise.vue';
 import stuOnlineExercise from'../components/zxlx/stuOnlineExercise.vue';
-
+import ResetPassword from "../components/login/reset-password.vue";
 
 
 
@@ -84,6 +84,11 @@ const routes = [
 		path: '/stu-online-exercise',
 		name: 'stuOnlineExercise',
 		component: stuOnlineExercise,
+	  },
+	{
+		path: '/reset-password',
+		name: 'ResetPassword',
+		component: ResetPassword,
 	  },
 
 	

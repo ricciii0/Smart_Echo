@@ -4,13 +4,13 @@
 	    <router-view />
 	  
     <div class="register-container">
-      <h1>注册修改成功！</h1>
+      <h1>注册</h1>
       <form @submit.prevent="handleRegister">
         <select v-model="role" @change="toggleFields">
           <option value="" disabled selected>选择身份</option>
           <option value="student">学生</option>
           <option value="teacher">教师</option>
-        </select>sssss
+        </select>
 
         <div v-if="role === 'student'">
           <input type="text" v-model="studentId" placeholder="学号" required />
