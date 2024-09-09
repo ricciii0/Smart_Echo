@@ -22,6 +22,8 @@
             <option value="2024-08-20">2024-08-20</option>
           </select>
           <button @click="searchResources">查询</button>
+                    <input type="file" ref="uploadFile" />
+          <button @click="uploadFile">上传</button>
         </div>
 
         <table class="resource-table">
