@@ -1,4 +1,4 @@
-from db import db
+from mydatabase import db
 from sqlalchemy.dialects.mysql import LONGBLOB
 from sqlalchemy import Column, Integer, String, DateTime
 from datetime import datetime
