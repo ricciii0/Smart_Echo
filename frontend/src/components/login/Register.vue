@@ -1,8 +1,5 @@
 <template>
   <div class="register-page">
-
-	    <router-view />
-	  
     <div class="register-container">
       <h1>注册</h1>
       <form @submit.prevent="handleRegister">
@@ -16,25 +13,23 @@
           <input type="text" v-model="studentId" placeholder="学号" required />
           <input type="text" v-model="studentName" placeholder="姓名" required />
           <input type="text" v-model="studentClass" placeholder="班级" required />
-		  <input type="password" v-model="password" placeholder="密码" required />
-		  <input type="password" v-model="confirmPassword" placeholder="确认密码" required />
+          <input type="text" v-model="studentEmail" placeholder="邮箱号" required />
+          <input type="password" v-model="password" placeholder="密码" required />
+          <input type="password" v-model="confirmPassword" placeholder="确认密码" required />
           <div v-if="classError" class="error">{{ classError }}</div>
-        </div> 
+        </div>
 
         <div v-if="role === 'teacher'">
           <input type="text" v-model="teacherId" placeholder="教师号" required />
           <input type="text" v-model="teacherName" placeholder="姓名" required />
           <input type="text" v-model="teacherSubject" placeholder="科目" required />
           <input type="text" v-model="teacherEmail" placeholder="邮箱号" required />
-<input type="text" v-model="teacherClass" placeholder="班级（若有多个请用逗号隔开）" required />
-
-		  <input type="password" v-model="password" placeholder="密码" required />
-		  <input type="password" v-model="confirmPassword" placeholder="确认密码" required />
+          <input type="text" v-model="teacherClass" placeholder="班级（若有多个请用逗号隔开）" required />
+          <input type="password" v-model="password" placeholder="密码" required />
+          <input type="password" v-model="confirmPassword" placeholder="确认密码" required />
         </div>
 
-
         <button type="submit" class="btn">注册</button>
-
       </form>
     </div>
   </div>
@@ -43,9 +38,7 @@
 <script>
 import axios from 'axios';
 
-
 export default {
-
   data() {
     return {
       role: '',
@@ -54,7 +47,8 @@ export default {
       studentClass: '',
       teacherId: '',
       teacherName: '',
-        teacherSubject: '',
+      teacherSubject: '',
+      studentEmail: '',
       teacherEmail: '',
       teacherClass: '',
       password: '',
@@ -64,7 +58,8 @@ export default {
   },
   methods: {
     toggleFields() {
-      this.classError = ''; // 重置错误信息
+      // 清空任何错误信息
+      this.classError = '';
     },
     async handleRegister() {
       if (this.password !== this.confirmPassword) {
@@ -73,36 +68,34 @@ export default {
       }
 
       const payload = {
-        role: this.role,
+        user_type: this.role,
+        user_id: this.role === 'student' ? this.studentId : this.teacherId,
+        name: this.role === 'student' ? this.studentName : this.teacherName,
         password: this.password,
+        email: this.role === 'student' ? this.studentEmail : this.teacherEmail,
+        class_id: this.role === 'student' ? this.studentClass : '',
+        subject: this.role === 'teacher' ? this.teacherSubject : '',
+        class1: this.role === 'teacher' ? this.teacherClass.split(',')[0] : '',
+        class2: this.role === 'teacher' ? (this.teacherClass.split(',')[1] || '') : '',
       };
-
-      // 根据身份处理不同的注册信息
-      if (this.role === 'student') {
-        payload.studentId = this.studentId;
-        payload.studentName = this.studentName;
-        payload.studentClass = this.studentClass;
-      } else if (this.role === 'teacher') {
-        payload.teacherId = this.teacherId;
-        payload.teacherName = this.teacherName;
-        payload.teacherSubject = this.teacherSubject;
-        payload.teacherEmail = this.teacherEmail;
-      }
 
       try {
         // 发送注册请求到后端
-        const response = await axios.post('http://127.0.0.1:5000/register', payload);
-
-        if (response.data.success) {
+        const response = await axios.post('http://127.0.0.1:5000/auth/register/', payload);
+        if (response.status === 201) {
           alert('注册成功！');
           this.$router.push('/'); // 注册成功后跳转到登录页面
         } else {
-          alert(response.data.message || '注册失败');
+          alert(response.data.error || '注册失败');
         }
       } catch (error) {
-        console.error('注册请求失败:', error);
-        alert('注册请求失败，请稍后再试');
-      }
+  console.error('注册请求失败:', error);
+  if (error.response && error.response.data) {
+    alert(error.response.data.error || '注册请求失败，请稍后再试');
+  } else {
+    alert('注册请求失败，请稍后再试');
+  }
+}
     },
   },
 };

@@ -38,14 +38,14 @@ export default {
 
       try {
         // 发送POST请求到后端
-        const response = await axios.post('http://127.0.0.1:5000/login', {
-          username: this.username,
+        const response = await axios.post('http://127.0.0.1:5000/auth/login/', {
+          user_id: this.username,
           password: this.password,
           remember: this.remember,
         });
 
         // 根据后端响应处理登录结果
-        if (response.data.success||this.username === '1' || this.password === '1') {
+        if (response.data.success) {
           alert('登录成功');
           this.$router.push('/main'); // 登录成功后跳转到主页面
         } else {

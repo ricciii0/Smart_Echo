@@ -7,12 +7,15 @@ from models.teacher import Teacher
 from models.student import Student
 from email.mime.text import MIMEText
 from email.utils import formataddr
+from flask_cors import CORS  # 导入CORS库
 import random
 import smtplib
 
 auth=Blueprint('auth', __name__)
 
-@auth.route('/login', methods=['POST','GET'])
+CORS(auth, supports_credentials=True)  # 启用CORS，允许跨域请求
+
+@auth.route('/login/', methods=['POST','GET'])
 def login():
     if request.method == "POST":
         data = request.get_json()
@@ -37,21 +40,33 @@ def login():
     else:
         return jsonify({'error':'Method not allowed'}), 405
 
-@auth.route('/register', methods=['POST','GET'])
+@auth.route('/register/', methods=['POST','GET'])
 def register():
     if request.method == "POST":
         data = request.get_json()
         if not data:
             return jsonify({'error':'Invalid data'}), 400
-        user_type=data['user_type']
-        user_id=data['user_id']
+        # user_type=data['user_type']
+        # user_id=data['user_id']
+        user_type = data.get('user_type')
+        user_id = data.get('user_id')
+        name = data.get('name')
+        password = data.get('password')
+        email = data.get('email')
+
+
+
         if user_type == 'teacher':
-            name=data['name']
-            password=data['password']
-            subject=data['subject']
-            email=data['email']
-            class1=data['class1']
-            class2=data['class2']
+            # name=data['name']
+            # password=data['password']
+            # subject=data['subject']
+            # email=data['email']
+            # class1=data['class1']
+            # class2=data['class2']
+            subject = data.get('subject')
+            class1 = data.get('class1')
+            class2 = data.get('class2')
+
             user=User.query.filter_by(user_id=user_id).first()
             if user:
                 return jsonify({'error':'Teacher already registered'}), 400
@@ -77,11 +92,14 @@ def register():
             except Exception as e:
                 db.session.rollback()
                 return jsonify({'error': 'Registration failed', 'details': str(e)}), 500
+
         if user_type == 'student':
-            name=data['name']
-            password=data['password']
-            class_id=data['class_id']
-            email=data['email']
+            # name=data['name']
+            # password=data['password']
+            # class_id=data['class_id']
+            # email=data['email']
+            class_id = data.get('class_id')
+
             user=User.query.filter_by(user_id=user_id).first()
             if user:
                 return jsonify({'error':'Student already registered'}), 400
@@ -107,7 +125,7 @@ def register():
                 return jsonify({'error': 'Registration failed', 'details': str(e)}), 500
 
 
-@auth.route('/forgot', methods=['GET', 'POST'])
+@auth.route('/forgot/', methods=['GET', 'POST'])
 def forgot():
     if request.method == "POST":
         data = request.get_json()
@@ -129,7 +147,7 @@ def forgot():
         else:
             return jsonify({'error':'Invalid email address'}), 401
 
-@auth.route('/forgot/verify', methods=['GET', 'POST'])
+@auth.route('/forgot/verify/', methods=['GET', 'POST'])
 def forgot_verify():
     if request.method == "POST":
         data = request.get_json()
@@ -142,7 +160,7 @@ def forgot_verify():
         else:
             return jsonify({'error':'Wrong code'}), 401
 
-@auth.route('/forgot/reset', methods=['GET', 'POST'])
+@auth.route('/forgot/reset/', methods=['GET', 'POST'])
 def reset():
     if request.method == "POST":
         data = request.get_json()
@@ -156,7 +174,7 @@ def reset():
         print(user.password)
         return jsonify({'messages':'Password reset successfully'}),200
 
-@auth.route('/logout',methods=['POST'])
+@auth.route('/logout/',methods=['POST'])
 @login_required
 def logout():
     logout_user()
