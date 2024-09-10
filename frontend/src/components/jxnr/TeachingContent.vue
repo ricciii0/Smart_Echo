@@ -11,16 +11,16 @@
       @logout="handleLogout" 
     />
 
-
-    
-
       <div class="content-area">
         <div class="search-bar">
           <input type="text" v-model="resourceName" placeholder="讲义名称" />
-          <select v-model="selectedUploadTime">
-            <option value="全部">上传时间</option>
-            <option value="2024-08-20">2024-08-20</option>
-          </select>
+<!--          <select v-model="selectedUploadTime">-->
+<!--            <option value="全部">上传时间</option>-->
+<!--            <option value="2024-08-20">2024-08-20</option>-->
+<!--            -->
+<!--          </select>-->
+          <!-- 日期选择器 -->
+          <input type="date" v-model="selectedUploadTime" placeholder="选择上传时间" />
           <button @click="searchResources">查询</button>
                     <input type="file" ref="uploadFile" />
           <button @click="uploadFile">上传</button>
@@ -42,21 +42,21 @@
                 <input type="checkbox" v-model="resource.selected" />
               </td>
               <td>{{ index + 1 }}</td>
-              <td>{{ resource.name }}</td>
+              <td>{{ resource.filename }}</td>
               <td>{{ resource.uploadTime }}</td>
               <td>
-                <button @click="viewResource(resource)">查看</button>
-                <button @click="downloadResource(resource)">下载</button>
+                <button @click="viewResource(resource.id)">查看</button>
+                <button @click="downloadResource(resource.id)">下载</button>
               </td>
             </tr>
           </tbody>
         </table>
-        <resource-detail 
-    v-if="showDetail" 
-    :resource="selectedResource" 
-    @close="closeDetail" 
+        <resource-detail
+    v-if="showDetail"
+    :resource="selectedResource"
+    @close="closeDetail"
   />
-		
+
 		        <div class="pagination">
 		          <button @click="changePage(currentPage - 1)" :disabled="currentPage === 1">上一页</button>
 		          <span>第 {{ currentPage }} 页</span>
@@ -80,9 +80,10 @@
   </div>
 </template>
 
-<script>	
+<script>
 	import Sidebar from '../shared/Sidebar.vue';
 	import UserControls from '../shared/UserControls.vue';
+  import axios from "axios";
   import Detail from '../shared/Detail.vue';
 	export default {
 		  name: 'OnlineExercise',
@@ -90,25 +91,34 @@
 		    Sidebar,
 			UserControls,
 		  },
-  data() {
-      return {
-        
-        username: 'admin',
-        selectedClass: '班级1',
-        resourceName: '',
-        selectedUploadTime: '全部',
-        generatedFileType: '全部',
-        resources: [
-          { name: 'C++讲义1', uploadTime: '2024-08-20', selected: false },
-          { name: 'Python讲义1', uploadTime: '2024-08-20', selected: false },
-          // 更多数据行...
-        ],
-        showDetail: false,
-        selectedResource: null,
-        currentPage: 1,
-        itemsPerPage: 5, // 每页显示的条数
-      };
-    },
+  // data() {
+  //     return {
+  //
+  //       username: 'admin',
+  //       selectedClass: '班级1',
+  //       resourceName: '',
+  //       selectedUploadTime: '全部',
+  //       generatedFileType: '全部',
+  //       resources: [
+  //         { name: 'C++讲义1', uploadTime: '2024-08-20', selected: false },
+  //         { name: 'Python讲义1', uploadTime: '2024-08-20', selected: false },
+  //         // 更多数据行...
+  //       ],
+  //       showDetail: false,
+  //       selectedResource: null,
+  //       currentPage: 1,
+  //       itemsPerPage: 5, // 每页显示的条数
+  //     };
+  //   },
+    data() {
+    return {
+      resourceName: '',  // 用户输入的讲义名称
+      selectedUploadTime: '',  // 用户选择的上传时间
+      resources: []  // 查询结果将存储在这里
+    };
+  },
+
+
     computed: {
       totalPages() {
         return Math.ceil(this.resources.length / this.itemsPerPage);
@@ -119,10 +129,20 @@
       },
     },
   methods: {
-    viewResource(resource) {
-    this.selectedResource = resource;
-    this.showDetail = true;
-  },
+  //   viewResource(resource) {
+  //   this.selectedResource = resource;
+  //   this.showDetail = true;
+  // },
+
+    viewResource(fileId) {
+    // 打开新窗口预览文件
+    window.open(`http://127.0.0.1:5000/preview_material/${fileId}`, '_blank');
+    },
+
+    downloadResource(fileId) {
+    // 打开新窗口下载文件
+    window.open(`http://127.0.0.1:5000/download_material/${fileId}`, '_blank');
+   },
   closeDetail() {
     this.showDetail = false;
     this.selectedResource = null;
@@ -131,38 +151,134 @@
       alert('已退出登录');
       this.$router.push('/');
     },
-    searchResources() {
-      // 查询逻辑
-      alert('查询功能尚未实现');
+    // searchResources() {
+    //   // 查询逻辑
+    //   alert('查询功能尚未实现');
+    // },
+
+
+    //上传文件
+    async uploadFile() {
+    // 获取用户选择的文件
+    const file = this.$refs.uploadFile.files[0];
+    if (!file) {
+      alert('请先选择文件');
+      return;
+    }
+
+    // 创建 FormData 对象
+    const formData = new FormData();
+    formData.append('file', file);  // 文件
+    formData.append('subject', this.resourceName);  // 讲义名称（假设与文件名一起上传）
+
+    try {
+      // 发送 POST 请求到后端
+      const response = await axios.post('http://127.0.0.1:5000/upload_material', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        }
+      });
+      alert(response.data.message);  // 提示上传结果
+    } catch (error) {
+      console.error('上传失败:', error);
+      alert('文件上传失败，请重试');
+    }
+  },
+
+    async searchResources() {
+      try {
+        // 发送查询请求到后端
+        const response = await axios.get('http://127.0.0.1:5000/search_material', {
+          params: {
+            filename: this.resourceName,
+            date: this.selectedUploadTime  // 日期自动格式化为 'YYYY-MM-DD'
+          }
+        });
+        // 将后端返回的文件列表存储到 resources 数组中
+        this.resources = response.data;
+      } catch (error) {
+        console.error('查询时出错:', error);
+        alert('查询失败，请检查您的查询条件或重试。');
+      }
     },
+
 	    changePage(page) {
 	      if (page > 0 && page <= this.totalPages) {
 	        this.currentPage = page;
 	      }
 	    },
-    deleteSelected() {
-      // 删除选中的资源逻辑
-      alert('删除功能尚未实现');
+    // deleteSelected() {
+    //   // 删除选中的资源逻辑
+    //   alert('删除功能尚未实现');
+    // },
+
+    async deleteSelected() {
+    // 过滤出选中的资源
+    const selectedResources = this.resources.filter(resource => resource.selected);
+    if (selectedResources.length === 0) {
+      alert('请选择要删除的文件');
+      return;
+    }
+
+    // 遍历选中的资源，逐个删除
+    try {
+      for (const resource of selectedResources) {
+        await axios.delete(`http://127.0.0.1:5000/delete_material/${resource.id}`);
+        // 从前端列表中删除
+        this.resources = this.resources.filter(r => r.id !== resource.id);
+      }
+      alert('选中的文件已删除');
+    } catch (error) {
+      console.error('删除文件时出错:', error);
+      alert('删除文件失败，请重试。');
+    }
     },
+    // previewSelected() {
+    //   // 预览选中的资源逻辑
+    //   alert('预览功能尚未实现');
+    // },
+
     previewSelected() {
-      // 预览选中的资源逻辑
-      alert('预览功能尚未实现');
+    // 假设你有一个 selectedResources 数组存储了选中的资源
+    const selectedResources = this.resources.filter(resource => resource.selected);
+    if (selectedResources.length !== 1) {
+      alert('请只选择一个文件进行预览');
+      return;
+    }
+
+    // 获取选中的文件，并在新窗口中打开以预览
+    const resource = selectedResources[0];
+    window.open(`http://127.0.0.1:5000/preview_material/${resource.id}`, '_blank');
     },
+    // downloadSelected() {
+    //   // 下载选中的资源逻辑
+    //   alert('下载功能尚未实现');
+    // },
     downloadSelected() {
-      // 下载选中的资源逻辑
-      alert('下载功能尚未实现');
+    // 假设你有一个 selectedResources 数组存储了选中的资源
+    const selectedResources = this.resources.filter(resource => resource.selected);
+    if (selectedResources.length === 0) {
+      alert('请选择要下载的文件');
+      return;
+    }
+
+    // 遍历选中的资源，逐个下载
+    selectedResources.forEach(resource => {
+      window.open(`http://127.0.0.1:5000/download_material/${resource.id}`, '_blank');
+    });
     },
     generateFiles() {
       // 智能生成逻辑
       alert('智能生成功能尚未实现');
     },
 
-    downloadResource(resource) {
-      // 下载资源逻辑
-      alert(`下载: ${resource.name}`);
-    },
+    // downloadResource(resource) {
+    //   // 下载资源逻辑
+    //   alert(`下载: ${resource.name}`);
+    // },
   },
 };
+
 </script>
 
 <style scoped>
