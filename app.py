@@ -37,7 +37,7 @@ from models.user import User
 from auth.routes import auth
 
 app = Flask(__name__)
-app.config['SECRET_KEY'] = 'your_secret_key_here'  # 设置一个安全的密钥
+
 app.config.from_object('config.Config')  # 确保您的配置文件正确
 CORS(app, supports_credentials=True)
 

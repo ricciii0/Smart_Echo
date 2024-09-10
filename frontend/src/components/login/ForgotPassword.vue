@@ -22,7 +22,7 @@
       return {
         email: '',
          verificationCode: '',
-        correctCode:null, // 假设这是正确的验证码，实际情况应该从服务器获取并验证
+
 
       };
     },
@@ -49,22 +49,19 @@
 
       // 验证用户输入的验证码是否正确
     async verifyCode() {
-  if (!this.verificationCode) {
-    alert('请输入验证码');
-    return;
-  }
-  try {
-    const response = await axios.post('http://127.0.0.1:5000/auth/forgot/verify/', { input_code: this.verificationCode });
-    if (response.status === 200) {
-      alert('验证码正确');
-      this.$router.push('/reset-password'); // 跳转到重置密码页面
-    } else {
-      alert('验证码错误，请重新输入。');
+    if (!this.verificationCode) {
+        alert('请输入验证码');
+        return;
     }
-  } catch (error) {
-    console.error('验证码验证时出错:', error);
-    alert('验证码验证时出错，请稍后再试。');
-  }
+    try {
+        const response = await axios.post('http://127.0.0.1:5000/auth/forgot/verify/', { input_code: this.verificationCode });
+        if (response.status === 200) {
+            alert('验证码正确');
+            this.$router.push('/reset-password'); // 跳转到重置密码页面
+        }
+    } catch (error) {
+        alert('验证码验证时出错，请稍后再试。'); // 统一的错误提示
+    }
 }
     },
 

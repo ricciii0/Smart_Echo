@@ -1,5 +1,7 @@
 from flask import Blueprint, flash, jsonify,session,request
 from flask_login import login_user, login_required, logout_user, current_user
+from requests import Session
+from datetime import timedelta
 from mydatabase import db
 from wtforms.validators import email
 from models.user import User
@@ -11,6 +13,8 @@ from flask_cors import CORS  # 导入CORS库
 import random
 import smtplib
 
+
+
 auth=Blueprint('auth', __name__)
 
 CORS(auth, supports_credentials=True)  # 启用CORS，允许跨域请求
@@ -19,6 +23,7 @@ CORS(auth, supports_credentials=True)  # 启用CORS，允许跨域请求
 def login():
     if request.method == "POST":
         data = request.get_json()
+        print(data)
         if not data:
             return jsonify({'error':'Invalid data'}), 400
         user_id = data['user_id']
@@ -33,7 +38,8 @@ def login():
                 user_type='student'
             return jsonify({
                 'message':'login successfully',
-                'user_type':user_type
+                'user_type':user_type,
+                'success':True
             }),201
         else:
             return jsonify({'error':'Invalid user id or password'}), 401
@@ -136,6 +142,7 @@ def forgot():
             user = User.query.filter_by(email=receiver_email).first()
             if user:
                 verify_code=str(random.randint(100000,999999))
+                session.permanent = True
                 session['verify_code']=verify_code
                 session['user_email']=receiver_email
                 receiver_name=user.name
@@ -153,8 +160,10 @@ def forgot_verify():
         data = request.get_json()
         if not data:
             return jsonify({'error':'Invalid data'}), 400
-        verify_code=session['verify_code']
+        verify_code=session.get('verify_code')
+        print(verify_code)
         input_code=data['input_code']
+        print(input_code)
         if verify_code==input_code:
             return jsonify({'messages':'Ready to reset password'}),200
         else:
