@@ -9,6 +9,7 @@
 /teacher        教师的所有功能
 mydatabse.py    创建sqlalchemy实例
 config.py       配置信息
+requirements.txt 依赖
 app.py          项目入口
 
 

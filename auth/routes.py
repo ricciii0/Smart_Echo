@@ -135,7 +135,7 @@ def forgot_verify():
         data = request.get_json()
         if not data:
             return jsonify({'error':'Invalid data'}), 400
-        verify_code=data['verify_code']
+        verify_code=session['verify_code']
         input_code=data['input_code']
         if verify_code==input_code:
             return jsonify({'messages':'Ready to reset password'}),200
@@ -152,9 +152,11 @@ def reset():
         user_email=session['user_email']
         user=User.query.filter_by(email=user_email).first()
         user.set_password(password)
+        print(user.name)
+        print(user.password)
         return jsonify({'messages':'Password reset successfully'}),200
 
-@auth.route('/logout')
+@auth.route('/logout',methods=['POST'])
 @login_required
 def logout():
     logout_user()

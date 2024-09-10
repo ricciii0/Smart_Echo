@@ -1,7 +1,7 @@
 from flask import Flask, redirect, url_for, jsonify
 from mydatabase import db
 from flask_login import LoginManager
-
+from models.user import User
 app = Flask(__name__)
 app.config.from_object('config.Config')
 
@@ -10,6 +10,12 @@ app.register_blueprint(auth, url_prefix='/auth')
 
 login_manager = LoginManager(app)
 login_manager.login_view = 'auth.login'
+
+@login_manager.user_loader
+def user_loader(user_id: str):
+    user = User.query.get(user_id)
+    return user
+
 @app.route('/')
 def index():
     return jsonify({'message':'fuck u seu'})
