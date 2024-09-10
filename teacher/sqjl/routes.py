@@ -1,10 +1,10 @@
 from flask import Flask, request, jsonify
 from teacher import community_blueprint
-from user_question import create_questions,get_questions,get_answers,delete_questions,answer_questions,get_question
-from user_post import (create_posts,delete_posts,get_posts_by_likes,
+from teacher.sqjl.user_question import create_questions,get_questions,get_answers,delete_questions,answer_questions,get_question
+from teacher.sqjl.user_post import (create_posts,delete_posts,get_posts_by_likes,
                        get_posts_by_favorites,get_post, get_posts, add_likes_num)
-from user_reply import create_replies,delete_replies,get_replies
-from user_favorite import (add_favorite,delete_favorite,get_favorite, is_favorite)
+from teacher.sqjl.user_reply import create_replies,delete_replies,get_replies
+from teacher.sqjl.user_favorite import (add_favorite,delete_favorite,get_favorite, is_favorite)
 from flask_cors import CORS  # 导入CORS库
 
 
