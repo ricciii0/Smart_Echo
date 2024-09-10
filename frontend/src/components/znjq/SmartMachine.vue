@@ -1,14 +1,14 @@
 <template>
-  <div class="main-container">
-<Sidebar />
-  <router-view />
+    <div class="main-container">
+    <Sidebar />
+    <router-view />
 
     <div class="main-content">
-      <UserControls 
-            :username="username" 
-            v-model="selectedClass" 
-            @logout="handleLogout" 
-          />
+      <UserControls
+        :username="username"
+        v-model="selectedClass"
+        @logout="handleLogout"
+      />
 
       <div class="content-area">
         <div class="search-bar">
@@ -33,16 +33,42 @@
           <div class="chat-container">
             <div class="question-content">
               <div class="message" v-for="(msg, index) in messages" :key="index">
-                <div class="message-bubble" :class="{ 'user-message': msg.type === 'user', 'bot-message': msg.type === 'bot' }">
+                <div class="message-bubble"
+                  :class="{
+                    'user-message': msg.type === 'user',
+                    'bot-message': msg.type === 'bot'
+                  }"
+                  :style="msg.type === 'user' ? 'text-align: right;' : 'text-align: left;'">
                   <p>{{ msg.text }}</p>
                 </div>
               </div>
             </div>
+<div class="input-container">
+<div class="mode-selection">
+          <label>选择输入模式：</label>
+          <select v-model="selectedMode" @change="resetInputs">
+            <option value="code">代码</option>
+            <option value="file">文件</option>
+            <option value="text">文字</option>
+          </select>
+        </div>
 
-            <div class="input-area">
-              <input type="text" v-model="userMessage" placeholder="输入问题..." />
-              <button @click="sendMessage">发送</button>
-            </div>
+        <!-- 根据选择显示不同的输入区域 -->
+        <div v-if="selectedMode === 'code'">
+          <textarea v-model="codeInput" placeholder="输入代码..." rows="5" cols="100"></textarea>
+          <button @click="debugCode">自动调试代码</button>
+        </div>
+
+        <div v-if="selectedMode === 'file'">
+          <input type="file" @change="handleFileUpload" />
+          <pre>{{ fileContent }}</pre>
+          <button @click="debugFile">调试文件内容</button>
+        </div>
+
+        <div v-if="selectedMode === 'text'">
+          <textarea v-model="textInput" placeholder="输入文本..." rows="3" cols="100"></textarea>
+          <button @click="sendText">发送文本</button></div>
+        </div>
           </div>
         </div>
       </div>
@@ -53,6 +79,7 @@
 <script>
 	import Sidebar from '../shared/Sidebar.vue';
 	import UserControls from '../shared/UserControls.vue';
+  import axios from "axios";
 	export default {
 		  name: 'OnlineExercise',
 		  components: {
@@ -63,12 +90,19 @@
     return {
       username: 'admin',
       selectedClass: '班级1',
+       selectedMode: 'code', // 默认为代码输入模式
+      codeInput: '',
       searchQuery: '',
       userMessage: '',
       messages: [],
     };
   },
   methods: {
+          resetInputs() {
+      this.codeInput = '';
+      this.fileContent = '';
+      this.textInput = '';
+    },
     logout() {
       alert('已退出登录');
       this.$router.push('/');
@@ -99,6 +133,50 @@
 
       // 清空输入框
       this.userMessage = '';
+    },
+     handleFileUpload(event) {
+      const file = event.target.files[0];
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        this.fileContent = e.target.result; // 读取的文件内容
+      };
+      reader.readAsText(file);
+    },
+    debugCode() {
+      if (!this.codeInput) return;
+
+      // 模拟后端调用调试代码API
+      this.messages.push({ text: '调试代码中...', type: 'user' });
+
+      setTimeout(() => {
+        // 假设后端返回的调试结果
+        const debugResult = `调试完成，代码无错误：\n${this.codeInput}`;
+        this.messages.push({ text: debugResult, type: 'bot' });
+      }, 2000); // 2秒延迟
+    },
+    debugFile() {
+      if (!this.fileContent) return;
+
+      this.messages.push({ text: '调试文件内容中...', type: 'user' });
+
+      setTimeout(() => {
+        const debugResult = `调试完成，文件无错误：\n${this.fileContent}`;
+        this.messages.push({ text: debugResult, type: 'bot' });
+      }, 2000);
+    },
+    sendText() {
+      if (!this.textInput) return;
+
+      this.messages.push({ text: this.textInput, type: 'user' });
+
+      setTimeout(() => {
+        const botResponse = `这是对文字输入 "${this.textInput}" 的回复`;
+        this.messages.push({ text: botResponse, type: 'bot' });
+      }, 1000);
+    },
+    handleLogout() {
+      alert('已退出登录');
+      this.$router.push('/');
     },
   },
 };
@@ -132,6 +210,27 @@ html, body {
   height: 100vh; /* 填满整个视口高度 */
   margin: 0;
 }
+.message {
+  margin-bottom: 10px;
+}
+
+.message-bubble {
+  background-color: #e1ffc7;
+  border-radius: 10px;
+  padding: 10px;
+  max-width: 80%;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+.user-message {
+  background-color: #cfe2ff;
+  text-align: right;
+}
+
+.bot-message {
+  background-color: #e1ffc7;
+  text-align: left;
+}
 
 /* =========================
    主内容样式
@@ -145,28 +244,11 @@ html, body {
   overflow: auto;
 }
 
-.header {
-  display: flex;
-  justify-content: flex-end;
-  align-items: center;
-  margin-bottom: 20px;
-}
-
-.user-controls {
-  display: flex;
-  align-items: center;
-}
 
 .user-controls span {
   margin-right: 20px;
 }
 
-.welcome-message {
-  margin-left: 10px;
-  margin-right: 20px;
-  font-size: 0.9em;
-  color: #34495e;
-}
 
 /* =========================
    内容区域样式
@@ -332,14 +414,6 @@ button {
 }
 
 
-.pagination {
-  display: flex;
-  justify-content: center;
-    align-items: center; /* 确保按钮和文本垂直居中 */
-  margin: 20px 0; /* 添加上下间距 */
- font-size: 12px; /* 调整字体大小 */
-}
-
 .pagination button {
   padding: 4px 8px; /* 调整内边距 */
   font-size: 12px; /* 调整字体大小 */
@@ -357,5 +431,11 @@ button {
 .pagination button:disabled {
   background-color: #ccc; /* 禁用状态背景颜色 */
   cursor: not-allowed; /* 禁用状态光标 */
+}
+
+.input-container{
+   display: flex;
+  gap: 20px; /* 间距 */
+  margin-bottom: 20px; /* 与其他内容的间距 */
 }
 </style>
