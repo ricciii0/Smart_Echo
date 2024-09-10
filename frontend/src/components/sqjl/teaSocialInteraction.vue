@@ -15,24 +15,24 @@
       <h3>答疑转接</h3>
       <div
         v-for="(question, index) in questions"
-        :key="question.id"
+        :key="question.question_id"
         :class="['question-item', { selected: selectedQuestionIndex === index }]"
         @click="selectQuestion(index)"
       >
-        {{ question.id }}
+        {{ question.question_id, index+1 }}
       </div>
       <div class="pagination">
         <!-- Pagination controls can be added here -->
-         
+
       </div>
     </div>
-    
+
     <div class="question-detail">
       <h3>问题内容</h3>
       <p v-if="selectedQuestion">{{ selectedQuestion.content }}</p>
       <p v-else>请在左侧选择一个问题</p>
     </div>
-    
+
     <div class="teacher-response">
       <textarea v-model="replyContent" placeholder="输入您的回复..."></textarea>
       <input type="file" @change="handleFileUpload"/>
@@ -46,30 +46,31 @@
           <button @click="toggleFavorites">收藏夹</button>
           <!-- 发表帖子按钮，点击弹出发表帖子表单 -->
           <button @click="togglePostModal">发表帖子</button>
-          
+
           <!-- 帖子列表，v-for循环渲染所有帖子 -->
-          <div class="post" v-for="post in posts" :key="post.id">
+          <div class="post" v-for="post in posts" :key="post.post_id">
             <div class="post-header">
-              <span>{{ post.author }}</span>
-              <span>{{ post.timestamp }}</span>
+              <span>{{ post.poster_id }}</span>
+              <span>{{ post.post_time }}</span>
               <!-- 收藏按钮，添加/取消收藏 -->
-              <button @click="toggleFavorite(post.id)">{{post.isFavorited?'取消收藏':'收藏'}}</button>
+              <button @click="toggleFavorite(post.post_id, post.is_favorite)">{{post.is_favorite?'取消收藏':'收藏'}}</button>
             </div>
             <!-- 帖子内容 -->
+             <div class="post-title">{{ post.title }}</div>
             <div class="post-content">{{ post.content }}</div>
             <div class="post-footer">
               <!-- 点赞按钮，点赞计数器增加 -->
-              <button @click="likePost(post.id)">{{ post.likes }} 👍</button>
+              <button @click="likePost(post.post_id)">{{ post.likes_num }} 👍</button>
               <!-- 显示/隐藏评论按钮 -->
               <button @click="post.showComments = !post.showComments">
                 {{ post.showComments ? '收起评论' : '查看评论' }}
               </button>
               <!-- 添加评论按钮 -->
-              <button @click="commentPost(post.id)">+ 评论</button>
+              <button @click="commentPost(post.post_id)">+ 评论</button>
             </div>
             <!-- 评论区，显示所有评论 -->
             <div v-if="post.showComments" class="comment-section">
-              <div v-for="comment in post.comments" :key="comment.id" class="comment-item">
+              <div v-for="comment in post.comments" :key="comment.reply_id" class="comment-item">
                 {{ comment.content }}
               </div>
             </div>
@@ -83,9 +84,9 @@
             <button class="close-button" @click="toggleFavorites">关闭</button>
             <!-- 收藏列表，v-for渲染收藏帖子 -->
             <div v-if="favoritePosts.length > 0" class="favorites-list">
-              <div v-for="post in favoritePosts" :key="post.id" class="favorite-post">
-                <div class="post-header">{{ post.author }} - {{ post.timestamp }}</div>
-                <div class="post-content">{{ post.content }}</div>
+              <div v-for="favorite in favoritePosts" :key="favorite.favorite_id" class="favorite-post">
+                <div class="post-header">{{ favorite.favorite_id }} - {{favorite.favorite_time }}</div>
+                <div class="post-content">{{ favorite.title }}</div>
               </div>
             </div>
             <!-- 没有收藏时显示的提示信息 -->
@@ -99,8 +100,11 @@
             <h3>发表帖子</h3>
             <button class="close-button" @click="togglePostModal">关闭</button>
             <!-- 发帖表单 -->
+             <br>
             <form @submit.prevent="submitPost">
               <div class="form-group">
+                <label for="post-title">标题</label>
+                <textarea v-model="newPostTitle" id="post-title" rows="1" placeholder="请输入帖子标题"></textarea>
                 <label for="post-content">内容:</label>
                 <textarea v-model="newPostContent" id="post-content" rows="5" placeholder="请输入帖子内容"></textarea>
               </div>
@@ -109,6 +113,7 @@
                 <input type="file" id="file-upload" @change="handleFileUpload" />
               </div>
               <!-- 提交按钮 -->
+               <br>
               <button type="submit">提交</button>
             </form>
           </div>
@@ -121,6 +126,7 @@
 <script>
 import Sidebar from '../shared/Sidebar.vue';
 import UserControls from '../shared/UserControls.vue';
+import axios from 'axios';
 
 export default {
   name: 'SocialInteraction',
@@ -131,21 +137,18 @@ export default {
   data() {
     return {
       username: 'admin', // 当前用户名
+      userid: ' ',
       selectedClass: '班级1', // 选中的班级
-      posts: [ // 帖子数据
-        { id: 1, author: '学生1', timestamp: '1小时前', content: '这是一个帖子内容', likes: 0, showComments: false, comments: [ { id: 1, content: '这是第一条评论' },
-            { id: 2, content: '这是第二条评论' }],isFavorited:false },
-        // 其他帖子...
-      ],
-      questions: [
-        { id: '1', content: '这是第一个问题的内容。' },
-        { id: '2', content: '这是第二个问题的内容。' },
-        { id: '3', content: '这是第三个问题的内容。' }
-      ],
+
+      posts: [],
+      questions: [],
       favoritePosts: [], // 收藏的帖子
+
       showFavorites: false, // 是否显示收藏夹弹窗
       showPostModal: false, // 是否显示发表帖子弹窗
+
       newPostContent: '', // 新帖子的内容
+      newPostTitle: '',
       uploadedFile: null, // 上传的文件
       selectedQuestionIndex: null,
       replyContent: '',
@@ -160,7 +163,13 @@ export default {
     }
   },
 
+  created(){
+    this.loadPosts();
 
+    this.loadFavorite();
+
+    this.loadQuestions();
+  },
 
   methods: {
     selectQuestion(index) {
@@ -174,27 +183,138 @@ export default {
         alert('请填写回复内容');
         return;
       }
-
-      // 处理提交逻辑，例如通过 API 发送数据
-      console.log('提交问题:', this.questions[this.selectedQuestionIndex].id);
-      console.log('回复内容:', this.replyContent);
+      const now = new Date();
+      const formattedTime = now.getFullYear() + '-' +
+                       (now.getMonth() + 1).toString().padStart(2, '0') + '-' +
+                       now.getDate().toString().padStart(2, '0') + ' ' +
+                       now.getHours().toString().padStart(2, '0') + ':' +
+                       now.getMinutes().toString().padStart(2, '0') + ':' +
+                       now.getSeconds().toString().padStart(2, '0');
+      axios.post('http://127.0.0.1:5000/answer_questions', {
+          'question_id': this.questions[this.selectedQuestionIndex].question_id,
+          'answer_time': formattedTime,
+          'answer': this.replyContent,
+          'teacher_id': this.userid,
+        })
+        .then(response =>{
+          console.log(response);
+        })
+        .catch(error =>{
+          console.log(error);
+        })
       console.log('上传的文件:', this.selectedFile);
-
-      // 清理表单
       this.replyContent = '';
       this.selectedFile = null;
     },
+
+    loadQuestions(){
+      axios.get('http://127.0.0.1:5000/get_questions')
+      .then(response =>{
+        this.questions = response.data;
+      })
+      .catch(error =>{
+        console.log(error);
+      })
+    },
+        //加载帖子
+    async loadPosts() {
+    try {
+      const response = await axios.get('http://127.0.0.1:5000/get_posts');
+      this.posts = response.data;
+
+      for (const post of this.posts) {
+        this.isFavorited(post.post_id);
+        this.loadComments(post.post_id);
+      }
+      } catch (error) {
+        console.log(error);
+      }
+    },
+    isFavorited(postId){
+      axios.get('http://127.0.0.1:5000/is_favorite', {
+        params: { 'post_id': postId, 'user_id': this.userid}
+    })
+      .then(response =>{
+        const post = this.posts.find(p => p.post_id === postId);
+        post.is_favorite = response.data;
+      })
+      .catch(error =>{
+        console.log(error);
+      })
+    },
+    loadFavorite(){
+      axios.get('http://127.0.0.1:5000/get_favorite',{
+        params: {'user_id': this.userid}
+      })
+      .then(response =>{
+        this.favoritePosts = response.data;
+      })
+      .catch(error =>{
+        console.log(error);
+      })
+    },
+    loadComments(postId){
+      axios.get('http://127.0.0.1:5000/get_replies', {
+        params: {'post_id': postId}
+      })
+      .then(response =>{
+        const post = this.posts.find(p => p.post_id === postId);
+        post.comments = response.data;
+        post.showComments = false;
+      })
+      .catch(error =>{
+        console.log(error);
+      })
+    },
+
     // 切换收藏夹显示/隐藏
     toggleFavorites() {
       this.showFavorites = !this.showFavorites;
     },
     // 收藏或取消收藏帖子
     toggleFavorite(postId) {
-      const post = this.posts.find(p => p.id === postId);
-      if (post && !this.favoritePosts.includes(post)) {
-        this.favoritePosts.push(post);
+      const post = this.posts.find(p =>p.post_id === postId);
+      if(post.is_favorite){
+        //  删除
+        axios.delete('http://127.0.0.1:5000/delete_favorite', {
+          data: {'user_id': this.userid, 'post_id': postId},
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        })
+        .then(response =>{
+            console.log(response);
+        })
+        .catch(error =>{
+          console.log(error);
+        })
+        const favorite = this.favoritePosts.find(f => f.post_id === postId);
+        post.favorites_num--;
+        this.favoritePosts.pop(favorite);
       }
-	  post.isFavorited=!post.isFavorited;
+      else{
+        const now = new Date();
+        const formattedTime = now.getFullYear() + '-' +
+                       (now.getMonth() + 1).toString().padStart(2, '0') + '-' +
+                       now.getDate().toString().padStart(2, '0') + ' ' +
+                       now.getHours().toString().padStart(2, '0') + ':' +
+                       now.getMinutes().toString().padStart(2, '0') + ':' +
+                       now.getSeconds().toString().padStart(2, '0');
+        axios.post('http://127.0.0.1:5000/add_favorite', {
+          'user_id': this.userid,
+          'favorite_time': formattedTime,
+          'title': post.title,
+          'post_id': postId,
+        })
+        .then(response =>{
+          this.favoritePosts.push(response.data);
+        })
+        .catch(error =>{
+          console.log(error);
+        })
+        post.favorites_num++;
+      }
+      post.is_favorite = !post.is_favorite;
     },
     // 切换发表帖子弹窗显示/隐藏
     togglePostModal() {
@@ -202,42 +322,85 @@ export default {
     },
     // 点赞帖子
     likePost(postId) {
-      const post = this.posts.find(p => p.id === postId);
+      const post = this.posts.find(p => p.post_id === postId);
       if (post) {
-        post.likes++;
-        alert(`点赞帖子 ID: ${postId}`);
+        post.likes_num++;
+        axios.post('http://127.0.0.1:5000/add_likes_num', {'post_id': postId})
+        .then(response=>{
+          console.log(response);
+        })
+        .catch(error =>{
+          console.log('error:', error);
+        })
       }
-    },
-    // 处理文件上传
-    handleFileUpload(event) {
-      this.uploadedFile = event.target.files[0];
     },
     // 添加评论
     commentPost(postId) {
+      const now = new Date();
+      const formattedTime = now.getFullYear() + '-' +
+                       (now.getMonth() + 1).toString().padStart(2, '0') + '-' +
+                       now.getDate().toString().padStart(2, '0') + ' ' +
+                       now.getHours().toString().padStart(2, '0') + ':' +
+                       now.getMinutes().toString().padStart(2, '0') + ':' +
+                       now.getSeconds().toString().padStart(2, '0');
+
       const comment = prompt('请输入您的评论:');
-      const post = this.posts.find(p => p.id === postId);
-      if (comment && post) {
-        post.comments.push({ id: post.comments.length + 1, content: comment });
+      if(comment){
+        axios.post('http://127.0.0.1:5000/create_replies', {
+        'content': comment,
+        'reply_time': formattedTime,
+        'publisher_id': this.userid,
+        "post_id": postId,
+      })
+        .then(response=>{
+          const post = this.posts.find(p => p.post_id === postId);
+          post.comments = [];
+          post.comments.push(response.data);
+          post.replies_num ++;
+        })
+        .catch(error =>{
+          console.log('error:', error);
+        })
       }
+
     },
     // 提交帖子
     submitPost() {
-      if (this.newPostContent || this.uploadedFile) {
+      const now = new Date();
+      const formattedTime = now.getFullYear() + '-' +
+                       (now.getMonth() + 1).toString().padStart(2, '0') + '-' +
+                       now.getDate().toString().padStart(2, '0') + ' ' +
+                       now.getHours().toString().padStart(2, '0') + ':' +
+                       now.getMinutes().toString().padStart(2, '0') + ':' +
+                       now.getSeconds().toString().padStart(2, '0');
+
+      if (this.newPostContent && this.newPostTitle) {
         const newPost = {
-          id: this.posts.length + 1,
-          author: this.username,
-          timestamp: '刚刚',
-          content: this.newPostContent || `文件上传: ${this.uploadedFile.name}`,
-          likes: 0,
-          showComments: false,
-          comments: [],
+          poster_id: this.userid,
+          post_time: formattedTime,
+          content: this.newPostContent,
+          title: this.newPostTitle,
         };
-        this.posts.push(newPost);
+        axios.post('http://127.0.0.1:5000/create_posts', newPost, {
+          headers:{
+            'Content-Type': 'application/json'
+          }
+        })
+        .then(response =>{
+          response.data.is_favorite = false;
+          response.data.is_like = false;
+          this.posts.push(response.data);
+        })
+        .catch(error =>{
+          console.log(error)
+        })
+
         this.newPostContent = '';
+        this.newPostTitle = '';
         this.uploadedFile = null;
         this.togglePostModal(); // 关闭发表帖子弹窗
       } else {
-        alert('请填写内容或上传文件。');
+        alert('标题与内容不能为空！');
       }
     },
   },
@@ -314,8 +477,8 @@ select:focus {
 	 height:400px;
 	 overflow-y: auto;
 	 padding:20px;
-	 
-	
+
+
   background: rgba(255, 255, 255, 0.8);
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
   margin-top: 30px;
@@ -442,7 +605,7 @@ button:hover {
 .question-container {
   display: flex;
   flex: 1;
-  
+
 }
 
 .question-list {
@@ -452,7 +615,7 @@ button:hover {
   background: rgba(255, 255, 255, 0.8);
   border-radius: 5px;
   padding: 10px;
-  box-shadow: 5px;
+  // box-shadow: 5px;
   margin-right: 10px;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
 }
@@ -489,7 +652,7 @@ input[type="file"] {
   background: rgba(255, 255, 255, 0.8);
   padding: 30px;
   border-radius: 5px;
-  
+
 }
 
 
@@ -509,7 +672,7 @@ input[type="file"] {
   margin-top: 15px;
   margin-left:30px;
   margin-right: 20px;
-  
+
 }
 
 textarea {
