@@ -1,6 +1,6 @@
 <template>
   <div class="register-page">
-	  <Sidebar />
+
 	    <router-view />
 	  
     <div class="register-container">
@@ -25,8 +25,8 @@
           <input type="text" v-model="teacherId" placeholder="教师号" required />
           <input type="text" v-model="teacherName" placeholder="姓名" required />
           <input type="text" v-model="teacherSubject" placeholder="科目" required />
-          <input type="text" v-model="teacherEmail" place holder="邮箱号" required />
-
+          <input type="text" v-model="teacherEmail" placeholder="邮箱号" required />
+<input type="text" v-model="teacherClass" placeholder="班级（若有多个请用逗号隔开）" required />
 
 		  <input type="password" v-model="password" placeholder="密码" required />
 		  <input type="password" v-model="confirmPassword" placeholder="确认密码" required />
@@ -41,7 +41,11 @@
 </template>
 
 <script>
+import axios from 'axios';
+
+
 export default {
+
   data() {
     return {
       role: '',
@@ -50,6 +54,9 @@ export default {
       studentClass: '',
       teacherId: '',
       teacherName: '',
+        teacherSubject: '',
+      teacherEmail: '',
+      teacherClass: '',
       password: '',
       confirmPassword: '',
       classError: '',
@@ -59,18 +66,43 @@ export default {
     toggleFields() {
       this.classError = ''; // 重置错误信息
     },
-    handleRegister() {
-      // 注册逻辑
+    async handleRegister() {
       if (this.password !== this.confirmPassword) {
         alert('密码不匹配');
         return;
       }
 
-      // 其他注册逻辑...
-      alert('注册成功！');
-	  
-	        // 自动返回登录页面
-	        this.$router.push('/');
+      const payload = {
+        role: this.role,
+        password: this.password,
+      };
+
+      // 根据身份处理不同的注册信息
+      if (this.role === 'student') {
+        payload.studentId = this.studentId;
+        payload.studentName = this.studentName;
+        payload.studentClass = this.studentClass;
+      } else if (this.role === 'teacher') {
+        payload.teacherId = this.teacherId;
+        payload.teacherName = this.teacherName;
+        payload.teacherSubject = this.teacherSubject;
+        payload.teacherEmail = this.teacherEmail;
+      }
+
+      try {
+        // 发送注册请求到后端
+        const response = await axios.post('http://127.0.0.1:5000/register', payload);
+
+        if (response.data.success) {
+          alert('注册成功！');
+          this.$router.push('/'); // 注册成功后跳转到登录页面
+        } else {
+          alert(response.data.message || '注册失败');
+        }
+      } catch (error) {
+        console.error('注册请求失败:', error);
+        alert('注册请求失败，请稍后再试');
+      }
     },
   },
 };

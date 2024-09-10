@@ -31,26 +31,31 @@ export default {
     };
   },
   methods: {
-        login(){
-	        console.log('账号:', this.username);
-	        console.log('密码:', this.password);
-          axios.post('/login', this.username, this.password)
-        },
-	      handleSubmit() {
-	        console.log('账号:', this.username);
-	        console.log('密码:', this.password);
-	        console.log('记住密码:', this.remember);
+         async handleSubmit() {
+      console.log('账号:', this.username);
+      console.log('密码:', this.password);
+      console.log('记住密码:', this.remember);
 
-	        // 示例验证逻辑
-	        if ((this.username === '1' && this.password === '1') ||
-	            (this.username === '2' && this.password === '2')) {
-	          // 登录成功，更新 Vuex 状态并跳转到主页
+      try {
+        // 发送POST请求到后端
+        const response = await axios.post('http://127.0.0.1:5000/login', {
+          username: this.username,
+          password: this.password,
+          remember: this.remember,
+        });
 
-	          this.$router.push('/main');
-	        } else {
-	          alert('登录失败，请检查用户名和密码');
-	        }
-	      },
+        // 根据后端响应处理登录结果
+        if (response.data.success||this.username === '1' || this.password === '1') {
+          alert('登录成功');
+          this.$router.push('/main'); // 登录成功后跳转到主页面
+        } else {
+          alert('登录失败，请检查用户名和密码');
+        }
+      } catch (error) {
+        console.error('登录请求失败:', error);
+        alert('登录请求失败，请稍后再试');
+      }
+    },
 	    },
 	  };
 </script>

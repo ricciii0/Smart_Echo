@@ -23,12 +23,7 @@
         <div class="photo-wall">
           <h2>照片墙</h2>
           <div class="photos">
-            <img src="../../img/photo1.jpg" alt="照片1" />
-            <img src="../../img/photo2.jpg" alt="照片2" />
-            <img src="../../img/photo3.jpg" alt="照片3" />
-            <img src="../../img/photo4.jpg" alt="照片4" />
-            <img src="../../img/photo5.jpg" alt="照片5" />
-          </div>
+             <img v-for="(photo, index) in photos" :key="index" :src="photo.src" :alt="photo.alt" class="photo-item" /> </div>
         </div>
       </div>
     </div>
@@ -54,10 +49,17 @@
         "公告3：请参加下周的家长会。",
         "公告4：新课程即将上线，敬请期待！",
       ],
+      photos: [
+        { src: '../../img/photo1.jpg', alt: '照片1' },
+        { src: '../../img/photo2.jpg', alt: '照片2' },
+        { src: '../../img/photo3.jpg', alt: '照片3' },
+        { src: '../../img/photo4.jpg', alt: '照片4' },
+        { src: '../../img/photo5.jpg', alt: '照片5' },
+      ],
     };
   },
   methods: {
-    logout() {
+    handleLogout() {
       // 退出登录逻辑
       alert('已退出登录');
       this.$router.push('/');

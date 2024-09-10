@@ -11,18 +11,24 @@
 </template>
 
 <script>
+import axios from 'axios';
 	export default {
 	  name: 'Sidebar',
 	  data()
 	  {
 		  return{
 			  userIdType: 'student', // 或 'teacher'，可以通过登录状态动态设置
+          sidebarLinks: [],
 		  };
 	  },
+    async created() {
+    await this.updateSidebarLinks();
+  },
 	  computed: {
     userIdType() {
       return this.$store.state.userIdType;
     },
+
 	      sidebarLinks() {
 	        if (this.userIdType === 'student') {
 	          return [
@@ -43,9 +49,21 @@
 	          ];
 	        }
 	        return [];},},
+    watch: {
+    userIdType: 'updateSidebarLinks', // 监控 userIdType 的变化
+  },
 methods: {
+     async updateSidebarLinks() {
+      try {
+        const response = await axios.get(`/api/sidebar-links?role=${this.userIdType}`);
+        this.sidebarLinks = response.data;
+      } catch (error) {
+        console.error('获取侧边栏链接失败:', error);
+      }
+    },
     toggleRole() {
       this.userIdType = this.userIdType === 'student' ? 'teacher' : 'student';
+      this.$store.commit('setUserIdType', this.userIdType); // 更新 Vuex 中的角色类型
     },
   },
 };

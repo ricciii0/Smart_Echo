@@ -1,9 +1,11 @@
 from flask import Flask, redirect, url_for, jsonify
+from flask_cors import CORS
 from mydatabase import db
 from flask_login import LoginManager
 from models.user import User
 
 app = Flask(__name__)
+CORS(app,supports_credentials=True)
 app.config.from_object('config.Config')
 
 # 导入并注册 auth 蓝图

@@ -41,7 +41,9 @@
 </template>
 
 <script>
+import axios from 'axios';
 export default {
+
   data() {
     return {
       newPassword: '',
@@ -53,10 +55,10 @@ export default {
     async submitNewPassword() {
       if (this.newPassword === this.confirmPassword) {
         try {
-          // 假设有一个 API 用于更新密码
+          // 发送密码更新请求到后端
           await this.updatePassword(this.newPassword);
 
-          // 密码更新成功，设置标志并让 router-link 显示
+          // 密码更新成功，显示跳转按钮
           this.isPasswordReset = true;
         } catch (error) {
           // 处理错误
@@ -69,21 +71,19 @@ export default {
     },
 
     async updatePassword(newPassword) {
-      // 这里是向后端发送密码更新请求的示例
-      // 请根据实际 API 修改 URL 和请求方法
-      const response = await fetch('/api/update-password', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ newPassword }),
-      });
+      // 向后端发送密码更新请求
+      try {
+        const response = await axios.post('http://127.0.0.1:5000/update-password', {
+          newPassword: newPassword,
+        });
 
-      if (!response.ok) {
-        throw new Error('网络响应不正常');
+        if (!response.data.success) {
+          throw new Error(response.data.message || '密码更新失败');
+        }
+        return response;
+      } catch (error) {
+        throw error;
       }
-
-      return response.json();
     },
   },
 };

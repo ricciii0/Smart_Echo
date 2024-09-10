@@ -50,8 +50,8 @@ def register():
             password=data['password']
             subject=data['subject']
             email=data['email']
-            class1=data['class1']
-            class2=data['class2']
+            teaching_class=data['teaching_class']
+            class1,class2=teaching_class.split(',')
             user=User.query.filter_by(user_id=user_id).first()
             if user:
                 return jsonify({'error':'Teacher already registered'}), 400
