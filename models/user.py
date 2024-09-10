@@ -28,11 +28,15 @@ class User(UserMixin, db.Model):
     def __repr__(self):
         return f'<User {self.username}>'
 
+    def get_id(self):
+        return self.user_id
+
 
     def set_password(self, password):
         salt=bcrypt.gensalt()
         hashed_password = bcrypt.hashpw(password.encode('utf-8'), salt)
         self.password=hashed_password.decode('utf-8')
+        db.session.commit()
 
     def check_password(self, password):
         return bcrypt.checkpw(password.encode('utf-8'), self.password.encode('utf-8'))
