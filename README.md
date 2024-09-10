@@ -2,9 +2,11 @@
 这是一个seu小组的暑期学校实训项目罢了~
 
 structure:
-/login                      //初始页面
-------/register             //注册 成功后返回到登录
-------/forgot
+auth/login                      //初始页面
+----/register             //注册 成功后返回到登录
+----/forgot
+----/forgot/verify
+----/forgot/reset
 
 /student                    //学生主页面
 
