@@ -16,6 +16,9 @@ app.register_blueprint(auth, url_prefix='/auth')
 from teacher import teacher  # 导入 teacher 蓝图
 app.register_blueprint(teacher, url_prefix='/teacher')  # 注册 teacher 蓝图
 
+from student import student
+app.register_blueprint(student, url_prefix='/student')
+
 # 设置 LoginManager
 login_manager = LoginManager(app)
 login_manager.login_view = 'auth.login'
