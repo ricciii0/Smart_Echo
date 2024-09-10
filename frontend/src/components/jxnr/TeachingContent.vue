@@ -136,12 +136,12 @@
 
     viewResource(fileId) {
     // 打开新窗口预览文件
-    window.open(`http://127.0.0.1:5000/jxnr/preview_material/${fileId}`, '_blank');
+    window.open(`http://127.0.0.1:5000/teacher/teaching/preview_material/${fileId}`, '_blank');
     },
 
     downloadResource(fileId) {
     // 打开新窗口下载文件
-    window.open(`http://127.0.0.1:5000/jxnr/download_material/${fileId}`, '_blank');
+    window.open(`http://127.0.0.1:5000/teacher/teaching/download_material/${fileId}`, '_blank');
    },
   closeDetail() {
     this.showDetail = false;
@@ -173,7 +173,7 @@
 
     try {
       // 发送 POST 请求到后端
-      const response = await axios.post('http://127.0.0.1:5000/jxnr/upload_material', formData, {
+      const response = await axios.post('http://127.0.0.1:5000/teacher/teaching/upload_material', formData, {
         headers: {
           'Content-Type': 'multipart/form-data'
         }
@@ -188,7 +188,7 @@
     async searchResources() {
       try {
         // 发送查询请求到后端
-        const response = await axios.get('http://127.0.0.1:5000/jxnr/search_material', {
+        const response = await axios.get('http://127.0.0.1:5000/teacher/teaching/search_material', {
           params: {
             filename: this.resourceName,
             date: this.selectedUploadTime  // 日期自动格式化为 'YYYY-MM-DD'
@@ -223,7 +223,7 @@
     // 遍历选中的资源，逐个删除
     try {
       for (const resource of selectedResources) {
-        await axios.delete(`http://127.0.0.1:5000/jxnr/delete_material/${resource.id}`);
+        await axios.delete(`http://127.0.0.1:5000/teacher/teaching/delete_material/${resource.id}`);
         // 从前端列表中删除
         this.resources = this.resources.filter(r => r.id !== resource.id);
       }
@@ -248,7 +248,7 @@
 
     // 获取选中的文件，并在新窗口中打开以预览
     const resource = selectedResources[0];
-    window.open(`http://127.0.0.1:5000/jxnr/preview_material/${resource.id}`, '_blank');
+    window.open(`http://127.0.0.1:5000/teacher/teaching/preview_material/${resource.id}`, '_blank');
     },
     // downloadSelected() {
     //   // 下载选中的资源逻辑
@@ -264,7 +264,7 @@
 
     // 遍历选中的资源，逐个下载
     selectedResources.forEach(resource => {
-      window.open(`http://127.0.0.1:5000/jxnr/download_material/${resource.id}`, '_blank');
+      window.open(`http://127.0.0.1:5000/teacher/teaching/download_material/${resource.id}`, '_blank');
     });
     },
     generateFiles() {
