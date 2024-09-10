@@ -24,25 +24,37 @@ export default {
       classList: [], // 用于存储班级列表
     };
   },
-  mounted() {
-    this.fetchClassList(); // 组件挂载后获取班级列表
+  async mounted() {
+    await this.fetchUserInfo(); // 获取用户信息
+    await this.fetchClassList(); // 获取班级列表
   },
   methods: {
-    fetchClassList() {
-      axios.get('/api/classes') // 替换为实际的 API 路径
-        .then(response => {
-          this.classList = response.data; // 假设返回的数据是班级数组
-          if (this.classList.length > 0) {
-            this.selectedClass = this.classList[0]; // 默认选择第一个班级
-          }
-        })
-        .catch(error => {
-          console.error('获取班级列表失败:', error);
-        });
+      async fetchUserInfo() {
+      try {
+        const response = await axios.get('/api/user-info'); // 替换为实际的 API 路径
+        this.username = response.data.username; // 假设返回的数据包含用户名
+      } catch (error) {
+        console.error('获取用户信息失败:', error);
+      }
     },
-    logout() {
-      this.$emit('logout'); // 触发 logout 事件
-	  this.$router.push('/');
+    async fetchClassList() {
+      try {
+        const response = await axios.get('/api/classes'); // 替换为实际的 API 路径
+        this.classList = response.data; // 假设返回的数据是班级数组
+        if (this.classList.length > 0) {
+          this.selectedClass = this.classList[0]; // 默认选择第一个班级
+        }
+      } catch (error) {
+        console.error('获取班级列表失败:', error);
+      }
+    },
+    async logout() {
+      try {
+        await axios.post('/api/logout'); // 替换为实际的 API 路径
+        this.$router.push('/'); // 成功登出后跳转到首页
+      } catch (error) {
+        console.error('登出请求失败:', error);
+      }
     },
   },
 };
