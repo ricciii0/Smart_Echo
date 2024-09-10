@@ -1,5 +1,6 @@
 from flask import Blueprint, flash, jsonify,session,request
 from flask_login import login_user, login_required, logout_user, current_user
+from mydatabase import db
 from wtforms.validators import email
 from models.user import User
 from models.teacher import Teacher
@@ -30,7 +31,7 @@ def login():
             return jsonify({
                 'message':'login successfully',
                 'user_type':user_type
-            })
+            }),201
         else:
             return jsonify({'error':'Invalid user id or password'}), 401
     else:
@@ -68,8 +69,6 @@ def register():
                 class2=class2
             )
             try:
-                from flask_sqlalchemy import SQLAlchemy
-                db=SQLAlchemy()
                 db.session.add_all([new_teacher_user,new_teacher])
                 db.session.commit()
                 return jsonify({'message': 'Teacher registered successfully'}), 201
@@ -96,13 +95,13 @@ def register():
                 student_id=student_id,
                 class_id=class_id
             )
-            # try:
-            #     db.session.add_all([new_student_user, new_student])
-            #     db.session.commit()
-            #     return jsonify({'message': 'Student registered successfully'}), 201
-            # except Exception as e:
-            #     db.session.rollback()
-            #     return jsonify({'error': 'Registration failed', 'details': str(e)}), 500
+            try:
+                db.session.add_all([new_student_user, new_student])
+                db.session.commit()
+                return jsonify({'message': 'Student registered successfully'}), 201
+            except Exception as e:
+                db.session.rollback()
+                return jsonify({'error': 'Registration failed', 'details': str(e)}), 500
 
 
 @auth.route('/forgot', methods=['GET', 'POST'])
