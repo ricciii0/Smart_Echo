@@ -615,7 +615,6 @@ button:hover {
   background: rgba(255, 255, 255, 0.8);
   border-radius: 5px;
   padding: 10px;
-  // box-shadow: 5px;
   margin-right: 10px;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
 }
