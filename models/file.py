@@ -12,4 +12,4 @@ class File(db.Model):
     filename = db.Column(db.String(20), nullable=False)
     file_type = db.Column(db.Enum(FileType), nullable=False)
     subject=db.Column(db.String(20), nullable=False)
-    uploadt_ime=db.Column(db.DateTime, unique=True, nullable=datetime.datetime.now())
+    upload_ime=db.Column(db.DateTime, unique=True, nullable=datetime.datetime.now())
