@@ -44,59 +44,62 @@ def register():
         if not data:
             return jsonify({'error':'Invalid data'}), 400
         user_type=data['user_type']
+        user_id=data['user_id']
         if user_type == 'teacher':
-            teacher_id=data['teacher_id']
             name=data['name']
             password=data['password']
             subject=data['subject']
             email=data['email']
             class1=data['class1']
             class2=data['class2']
-            teacher=Teacher.query.filter_by(Teacher_id=teacher_id).first()
-            if teacher:
+            user=User.query.filter_by(user_id=user_id).first()
+            if user:
                 return jsonify({'error':'Teacher already registered'}), 400
             new_teacher_user=User(
+                user_id=user_id,
                 user_type='teacher',
                 name=name,
                 password=password,
                 email=email
             )
             new_teacher = Teacher(
-                user_id=new_teacher_user.user_id,
-                teacher_id=teacher_id,
+                user_id=user_id,
                 subject=subject,
                 class1=class1,
                 class2=class2
             )
             try:
-                db.session.add_all([new_teacher_user,new_teacher])
+                db.session.add(new_teacher_user)
+                db.session.commit()
+                db.session.add(new_teacher)
                 db.session.commit()
                 return jsonify({'message': 'Teacher registered successfully'}), 201
             except Exception as e:
                 db.session.rollback()
                 return jsonify({'error': 'Registration failed', 'details': str(e)}), 500
         if user_type == 'student':
-            student_id=data['student_id']
             name=data['name']
             password=data['password']
             class_id=data['class_id']
             email=data['email']
-            student=Student.query.filter_by(student_id=student_id).first()
-            if student:
+            user=User.query.filter_by(user_id=user_id).first()
+            if user:
                 return jsonify({'error':'Student already registered'}), 400
             new_student_user=User(
+                user_id=user_id,
                 user_type='student',
                 name=name,
                 password=password,
                 email=email
             )
             new_student = Student(
-                user_id=new_student_user.user_id,
-                student_id=student_id,
+                user_id=user_id,
                 class_id=class_id
             )
             try:
-                db.session.add_all([new_student_user, new_student])
+                db.session.add(new_student_user)
+                db.session.commit()
+                db.session.add(new_student)
                 db.session.commit()
                 return jsonify({'message': 'Student registered successfully'}), 201
             except Exception as e:

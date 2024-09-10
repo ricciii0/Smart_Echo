@@ -18,7 +18,8 @@ class User(UserMixin, db.Model):
     email=db.Column(db.String(60), unique=True, nullable=False)
     registered_on = db.Column(db.DateTime, default=datetime.datetime.now())
 
-    def __init__(self,user_type, name, password,email):
+    def __init__(self,user_id,user_type, name, password,email):
+        self.user_id = user_id
         self.user_type = user_type
         self.name = name
         self.set_password(password)
