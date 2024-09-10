@@ -1,6 +1,6 @@
 <template>
   <div class="register-page">
-	  <Sidebar />
+
 	    <router-view />
 	  
     <div class="register-container">
@@ -25,8 +25,8 @@
           <input type="text" v-model="teacherId" placeholder="教师号" required />
           <input type="text" v-model="teacherName" placeholder="姓名" required />
           <input type="text" v-model="teacherSubject" placeholder="科目" required />
-          <input type="text" v-model="teacherEmail" place holder="邮箱号" required />
-
+          <input type="text" v-model="teacherEmail" placeholder="邮箱号" required />
+<input type="text" v-model="teacherClass" placeholder="班级（若有多个请用逗号隔开）" required />
 
 		  <input type="password" v-model="password" placeholder="密码" required />
 		  <input type="password" v-model="confirmPassword" placeholder="确认密码" required />
@@ -41,9 +41,11 @@
 </template>
 
 <script>
-import axios from 'axios'; // 引入 axios
+import axios from 'axios';
+
 
 export default {
+
   data() {
     return {
       role: '',
@@ -54,6 +56,7 @@ export default {
       teacherName: '',
         teacherSubject: '',
       teacherEmail: '',
+      teacherClass: '',
       password: '',
       confirmPassword: '',
       classError: '',

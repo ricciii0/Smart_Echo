@@ -34,8 +34,8 @@ export default {
         return;
       }
       try {
-        const response = await axios.post('http://127.0.0.1:5000/send_verification_code', { email: this.email });
-        if (response.data.success) {
+        const response = await axios.post('http://127.0.0.1:5000/auth/forgot/', { email: this.email });
+        if (response.status === 200) {
           alert('验证码已发送到您的邮箱，请检查您的邮件。');
           this.correctCode = response.data.code; // 从服务器获取正确的验证码
         } else {
@@ -48,14 +48,44 @@ export default {
     },
 
     // 验证用户输入的验证码是否正确
-    verifyCode() {
-      if (this.verificationCode === this.correctCode) {
-        alert('验证码正确');
-        this.$router.push('/reset-password'); // 跳转到重置密码页面
-      } else {
-        alert('验证码错误，请重新输入。');
+    async verifyCode() {
+      if (!this.verificationCode) {
+        alert('请输入验证码');
+        return;
+      }
+      try {
+        const response = await axios.post('http://127.0.0.1:5000/auth/forgot/verify/', { input_code: this.verificationCode });
+        if (response.status === 200) {
+          alert('验证码正确');
+          this.$router.push('/reset-password'); // 跳转到重置密码页面
+        } else {
+          alert('验证码错误，请重新输入。');
+        }
+      } catch (error) {
+        console.error('验证码验证时出错:', error);
+        alert('验证码验证时出错，请稍后再试。');
       }
     },
+     async resetPassword() {
+    if (!this.newPassword) {
+      alert('请输入新密码');
+      return;
+    }
+    try {
+      const response = await axios.post('http://127.0.0.1:5000/auth/forgot/reset/', {
+        password: this.newPassword
+      });
+      if (response.status === 200) {
+        alert('密码重置成功');
+        this.$router.push('/'); // 重置密码成功后，跳转回登录页面
+      } else {
+        alert('重置密码失败，请稍后再试。');
+      }
+    } catch (error) {
+      console.error('重置密码时出错:', error);
+      alert('重置密码时出错，请稍后再试。');
+    }
+  },
   },
 };
 </script>
