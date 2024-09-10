@@ -9,35 +9,53 @@
         <input type="text" v-model="verificationCode" placeholder="请输入验证码" required />
         <button class="send-code-btn" @click="sendVerificationCode">发送验证码</button>
       </div>
-        <router-link
-        v-if="verificationCode === correctCode"
-        to="/reset-password"
-        class="router-link-btn"
-      >
-        确定
-      </router-link>
+ <button @click="verifyCode">确定</button>
       <div class="link" @click="$router.push('/')">返回登录</div>
     </div>
   </div>
 </template>
 
 <script>
+import axios from 'axios';
 export default {
   data() {
     return {
       email: '',
        verificationCode: '',
-      correctCode: '123456', // 假设这是正确的验证码，实际情况应该从服务器获取并验证
+      correctCode:null, // 假设这是正确的验证码，实际情况应该从服务器获取并验证
 
     };
   },
   methods: {
-     sendVerificationCode() {
-      alert(`验证码已发送到 ${this.email}`);
+     // 发送验证码到用户邮箱
+    async sendVerificationCode() {
+      if (!this.email) {
+        alert('请输入邮箱');
+        return;
+      }
+      try {
+        const response = await axios.post('http://127.0.0.1:5000/send_verification_code', { email: this.email });
+        if (response.data.success) {
+          alert('验证码已发送到您的邮箱，请检查您的邮件。');
+          this.correctCode = response.data.code; // 从服务器获取正确的验证码
+        } else {
+          alert('发送验证码失败，请稍后再试。');
+        }
+      } catch (error) {
+        console.error('发送验证码时出错:', error);
+        alert('发送验证码时出错，请稍后再试。');
+      }
     },
 
-
-
+    // 验证用户输入的验证码是否正确
+    verifyCode() {
+      if (this.verificationCode === this.correctCode) {
+        alert('验证码正确');
+        this.$router.push('/reset-password'); // 跳转到重置密码页面
+      } else {
+        alert('验证码错误，请重新输入。');
+      }
+    },
   },
 };
 </script>
