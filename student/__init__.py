@@ -1,5 +1,9 @@
 from flask import Blueprint
 
-student = Blueprint('student', __name__)
+# 创建 Student 蓝图
+student = Blueprint('student', __name__, url_prefix='/student')
 
-from . import routes
+# 导入子蓝图
+
+
+#注册子蓝图
