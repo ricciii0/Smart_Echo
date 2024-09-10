@@ -8,6 +8,7 @@
 /student        学生的所有功能 
 /teacher        教师的所有功能
 mydatabse.py    创建sqlalchemy实例
+config.py       配置信息
 app.py          项目入口
 
 
