@@ -23,11 +23,11 @@
         <div class="photo-wall">
           <h2>照片墙</h2>
           <div class="photos">
-            <img src="../img/photo1.jpg" alt="照片1" />
-            <img src="../img/photo2.jpg" alt="照片2" />
-            <img src="../img/photo3.jpg" alt="照片3" />
-            <img src="../img/photo4.jpg" alt="照片4" />
-            <img src="../img/photo5.jpg" alt="照片5" />
+            <img src="../../img/photo1.jpg" alt="照片1" />
+            <img src="../../img/photo2.jpg" alt="照片2" />
+            <img src="../../img/photo3.jpg" alt="照片3" />
+            <img src="../../img/photo4.jpg" alt="照片4" />
+            <img src="../../img/photo5.jpg" alt="照片5" />
           </div>
         </div>
       </div>
