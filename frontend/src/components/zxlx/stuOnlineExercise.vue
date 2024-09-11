@@ -26,8 +26,10 @@
 								<td>{{ exercise.title }}</td>
 								<td>{{ exercise.uploadTime }}</td>
 								<td>
-									<button @click="download(exercise.id)">下载练习</button>
-									<button @click="viewSubmission(record)">提交答案</button>
+									<button @click="download(exercise)">下载练习</button>
+									<button @click="triggerFileInput(exercise)">上传答案</button>
+									<input ref="fileInput" type="file" style="display: none"
+										@change="handleFileChange" />
 								</td>
 							</tr>
 						</tbody>
@@ -46,6 +48,7 @@
 					<table class="submission-table">
 						<thead>
 							<tr>
+								<th>序号</th>
 								<th>发布老师</th>
 								<th>练习标题</th>
 								<th>提交时间</th>
@@ -56,11 +59,14 @@
 							</tr>
 						</thead>
 						<tbody>
-							<tr v-for="record in historyRecords" :key="record.id">
-								<td>{{ record.studentName }}</td>
+							<tr v-for="(record, index) in historyRecords" :key="index">
+								<td>{{ index + 1 }}</td>
+								<td>{{ record.teacher }}</td>
+								<td>{{ record.title }}</td>
 								<td>{{ record.submitTime }}</td>
-								<td>{{ record.gradeTime }}</td>
-								<td>{{ record.exerciseTitle }}</td>
+								<td>{{ record.checkTime }}</td>
+								<td>{{ record.score }}</td>
+								<td>{{ record.feedback }}</td>
 								<td>
 									<button @click="viewSubmission(record)">查看详情</button>
 								</td>
@@ -83,16 +89,21 @@
 <script>
 	import Sidebar from '../shared/Sidebar.vue';
 	import UserControls from '../shared/UserControls.vue';
+	import axios from 'axios';
 	export default {
 		name: 'OnlineExercise',
 		components: {
 			Sidebar,
 			UserControls,
 		},
+		mounted() {
+			this.getExercise();
+			this.getRecord();
+		},
 
 		data() {
 			return {
-				Exercises:[
+				Exercises: [
 					// 添加更多示例资源以便于分页
 					{
 						teacher: '加载中...',
@@ -100,12 +111,22 @@
 						uploadTime: '加载中...',
 					},
 				],
+				historyRecords: [
+					// 添加更多示例资源以便于分页
+					{
+						teacher: '加载中...',
+						title: '加载中...',
+						submitTime: '加载中...',
+						checkTime: '加载中...',
+						score: '加载中...',
+						feedback: '加载中...',
+					},
+				],
 				username: 'admin',
 				selectedClass: '班级1',
 				selectedKnowledgeQuestion: null,
 				selectedSubmission: null,
 				knowledgeBase: [], // 假设知识库数据
-				historyRecords: [], // 假设提交记录数据
 				selectedRecord: null, // 当前查看的提交记录
 				score: '',
 				feedback: '',
@@ -145,6 +166,70 @@
 					}
 				});
 				alert('练习题上传成功');
+			},
+			triggerFileInput(exercise) {
+				this.$refs.fileInput.click();
+				this.currentExerciseId = exercise['id'];
+			},
+			async handleFileChange(event) {
+				// alert(this.currentExerciseId)
+				const file = event.target.files[0];
+				if (file) {
+					const formData = new FormData();
+					formData.append('file', file);
+					formData.append('exerciseId', this.currentExerciseId); // 替换成实际 ID
+					try {
+						const response = await axios.post('http://127.0.0.1:5000/oe/raiseAnswer/', formData, {
+							headers: {
+								'Content-Type': 'multipart/form-data'
+							}
+						});
+						alert('文件上传成功:', response.data);
+					} catch (error) {
+						alert('文件上传失败:', error);
+					}
+					this.$router.go(0);
+				}
+			},
+			getExercise() {
+				let stuid = 2;
+				axios.post('http://127.0.0.1:5000/oe/print/', {
+						id: stuid
+					})
+					.then(result => {
+						this.Exercises = result.data;
+					});
+			},
+			getRecord() {
+				let stuid = 2;
+				axios.post('http://127.0.0.1:5000/oe/record/', {
+						id: stuid
+					})
+					.then(result => {
+						this.historyRecords = result.data;
+					});
+			},
+			download(exercise) {
+				axios({
+						url: `http://127.0.0.1:5000/oe/download/`,
+						method: 'POST',
+						data: {
+							exercise
+						}, //使用POST方式将 id 作为请求体的一部分
+						responseType: 'blob' // 指定响应类型为 Blob
+					})
+					.then(response => {
+						const url = window.URL.createObjectURL(new Blob([response.data]));
+						const a = document.createElement('a');
+						a.href = url;
+						a.download = exercise.title;
+						document.body.appendChild(a);
+						a.click();
+						document.body.removeChild(a);
+					})
+					.catch(error => {
+						console.error('Error:', error);
+					});
 			},
 			addToExercises() {
 				const question = this.knowledgeBase.find(q => q.id === this.selectedKnowledgeQuestion);

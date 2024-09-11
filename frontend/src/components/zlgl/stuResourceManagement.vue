@@ -195,6 +195,10 @@
 					const formData = new FormData();
 					formData.append('file', file);
 					formData.append('subject', this.theSubject);
+
+					let teaid = 0;
+					// teaid为当前登录的用户的id
+					formData.append('teaid', teaid);
 					// 使用 axios 进行上传
 					axios.post('http://127.0.0.1:5000/rm/upload/', formData, {
 							headers: {
@@ -208,7 +212,7 @@
 						.catch(error => {
 							alert('文件上传失败:', error);
 						});
-					this.$router.go(0);
+					//this.$router.go(0);
 				} else if (!file) {
 					alert('管理员梁耀欣提示您：没有选择文件');
 				} else {
@@ -243,7 +247,12 @@
 					});
 			},
 			getData() {
-				axios.get('http://127.0.0.1:5000/rm/print/')
+				let teaid = 0 ;
+				axios.get('http://127.0.0.1:5000/rm/print/', {
+						params: {
+							teaid: teaid
+						}
+					})
 					.then(result => {
 						this.resources = result.data;
 					});

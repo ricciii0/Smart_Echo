@@ -35,6 +35,8 @@ from mydatabase import db
 from flask_login import LoginManager
 from models.user import User
 from auth.routes import auth
+from teacher.onlineExercise import oe_bp
+from teacher.resourceManage import rm_bp
 
 app = Flask(__name__)
 
@@ -58,6 +60,8 @@ def index():
 
 # 注册蓝图
 app.register_blueprint(auth, url_prefix='/auth')
+app.register_blueprint(rm_bp)
+app.register_blueprint(oe_bp)
 
 if __name__ == '__main__':
     with app.app_context():
