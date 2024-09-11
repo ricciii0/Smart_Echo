@@ -1,7 +1,7 @@
 <template>
   <header class="header">
     <div class="user-controls">
-      <span>
+      <span v-if="usertype === 'teacher'">
         <select v-model="selectedClass">
           <option v-for="classItem in classList" :key="classItem">{{ classItem }}</option>
         </select>
@@ -22,10 +22,14 @@ export default {
       username: '张三', // 示例用户名
       selectedClass: '',
       classList: [], // 用于存储班级列表
+      usertype: '', // 用户类型 (teacher, student, etc.)
     };
   },
   async mounted() {
     await this.fetchUserInfo(); // 获取用户信息
+    if (this.usertype === 'teacher') {
+      await this.fetchClassList(); // 如果是教师，获取班级列表
+    }
     await this.fetchClassList(); // 获取班级列表
   },
   methods: {
@@ -33,6 +37,7 @@ export default {
       try {
         const response = await axios.get('/api/user-info'); // 替换为实际的 API 路径
         this.username = response.data.username; // 假设返回的数据包含用户名
+        this.usertype = response.data.usertype; // 假设返回的数据包含用户类型
       } catch (error) {
         console.error('获取用户信息失败:', error);
       }
