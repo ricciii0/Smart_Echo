@@ -19,9 +19,10 @@
 						<h3>从知识库选择题目</h3>
 						<select v-model="selectedKnowledgeQuestion">
 							<option v-for="question in knowledgeBase" :key="question.id" :value="question.id">
-								{{ question.title }}
+								{{ question.name }}
 							</option>
 						</select>
+						<input type="text" v-model="exercisetitle2" placeholder="练习标题" />
 						<button @click="addToExercises">添加到练习</button>
 					</div>
 				</div>
@@ -29,29 +30,69 @@
 				<div class="student-submissions">
 					<h3>查看学生提交记录</h3>
 					<div class="search-bar">
-						<input type="text" v-model="searchName" placeholder="输入学生姓名或练习内容" />
-						<input type="date" v-model="searchDate" />
+						<input type="text" v-model="searchName" placeholder="输入练习内容" />
 						<button @click="performSearch">搜索</button>
+						<button @click="refresh">刷新</button>
 					</div>
 					<table class="submission-table">
 						<thead>
 							<tr>
+								<th>序号</th>
 								<th>学生姓名</th>
+								<th>标题</th>
 								<th>提交时间</th>
+								<th>分数</th>
 								<th>批改时间</th>
-								<th>练习内容</th>
 								<th>操作</th>
 							</tr>
 						</thead>
 						<tbody>
-							<tr v-for="record in (filteredRecords.length ? filteredRecords : historyRecords)"
-								:key="record.id">
+							<tr v-for="(record, index) in historyRecords" :key="index">
+								<td>{{ index + 1 }}</td>
 								<td>{{ record.studentName }}</td>
+								<td>{{ record.title }}</td>
 								<td>{{ record.submitTime }}</td>
-								<td>{{ record.gradeTime }}</td>
-								<td>{{ record.exerciseTitle }}</td>
+								<td>{{ record.grade }}</td>
+								<td>{{ record.correcttime}}</td>
 								<td>
 									<button @click="viewSubmission(record)">查看详情</button>
+
+
+									<!-- 按钮触发弹窗 -->
+									<button @click="dialogVisible = true" class="open-dialog-btn">批改</button>
+
+									<!-- 使用 teleport 将弹窗渲染到 body 中 -->
+									<teleport to="body">
+										<div v-if="dialogVisible" class="dialog-overlay">
+											<div class="dialog">
+												<h3>批改</h3>
+
+												<form @submit.prevent="submitForm(record)">
+													<!-- 得分输入框 -->
+													<div class="form-group">
+														<label for="score">得分：</label>
+														<input type="number" v-model="form.score" id="score"
+															placeholder="请输入得分" />
+													</div>
+
+													<!-- 老师评价多行输入框 -->
+													<div class="form-group">
+														<label for="comments">老师评价：</label>
+														<textarea v-model="form.comments" id="comments" rows="4"
+															placeholder="请输入老师评价"></textarea>
+													</div>
+
+													<!-- 按钮部分 -->
+													<div class="dialog-footer">
+														<button type="button" @click="dialogVisible = false"
+															class="cancel-btn">取消</button>
+														<button type="submit" class="submit-btn">提交</button>
+													</div>
+												</form>
+											</div>
+										</div>
+									</teleport>
+
 								</td>
 							</tr>
 						</tbody>
@@ -76,6 +117,8 @@
 	import Sidebar from '../shared/Sidebar.vue';
 	import UserControls from '../shared/UserControls.vue';
 	import axios from 'axios';
+
+
 	export default {
 		name: 'OnlineExercise',
 		components: {
@@ -89,8 +132,22 @@
 				selectedClass: '班级2',
 				selectedKnowledgeQuestion: null,
 				selectedSubmission: null,
-				knowledgeBase: [], // 假设知识库数据
-				historyRecords: [], // 假设提交记录数据
+				knowledgeBase: [{
+						"name": "练习一",
+						"id": 1,
+					},
+					{
+						"name": "练习二",
+						"id": 2,
+					},
+				], // 假设知识库数据
+				historyRecords: [{
+					studentName: "加载中",
+					title: "加载中",
+					submitTime: "加载中",
+					grade: "加载中",
+					correcttime: "加载中",
+				}, ], // 假设提交记录数据
 				selectedRecord: null, // 当前查看的提交记录
 				searchName: '', // 学生姓名
 				searchDate: '', // 提交日期
@@ -98,22 +155,123 @@
 				score: '',
 				feedback: '',
 
-				exercisetitle:''
+				exercisetitle: '',
+				exercisetitle2: '',
+
+				dialogVisible: false,
+				form: {
+					score: '',
+					comments: '',
+				},
 			};
 		},
+		mounted() {
+			this.getRecord();
+			this.getKnowledgeRecords();
+		},
+
 		methods: {
+			getKnowledgeRecords() {
+				let teaid = 0;
+				axios.get('http://127.0.0.1:5000/rm/printdb/', {
+						params: {
+							teaid: teaid
+						}
+					})
+					.then(result => {
+						this.knowledgeBase = result.data;
+					});
+			},
+			addToExercises() {
+				if (this.selectedKnowledgeQuestion != null && this.exercisetitle2) {
+					// 进行文件上传的操作,const用作创建一个常量的变量，new是创建出来一个新的对象
+					const formData = new FormData();
+					formData.append('targetclass', this.selectedClass);
+					formData.append('title', this.exercisetitle2);
+					// 因为我还不会使用去获取教师的id或者名字，所以这里就随便设置了
+					let teacherid = 0;
+					//这里假如获得了学生的id列表
+					let studentid_s = [2, 3, 4, 5, 6, 7, 8];
+					let studentidString = studentid_s.join(',');
+					formData.append('studentid_s', studentidString);
+					// 到时候这里需要修改的
+					formData.append('teacherid', teacherid);
+					formData.append('exeid', this.selectedKnowledgeQuestion);
+					// 使用 axios 进行上传
+					axios.post('http://127.0.0.1:5000/oe/uploadfromdb/', formData, {
+							headers: {
+								'Content-Type': 'multipart/form-data'
+							},
+						})
+						.then(response => {
+							alert('成功上传文件', response.data);
+						})
+						.catch(error => {
+							alert('文件上传失败', error);
+						});
+				} else if (this.selectedKnowledgeQuestion == null) {
+					alert('管理员梁耀欣提示您：没有从知识库中选择练习');
+				} else {
+					alert('管理员梁耀欣提示您：没有指定标题');
+				}
+			},
+			getRecord() {
+				let teaid = 0;
+				axios.post('http://127.0.0.1:5000/oe/tearecord/', {
+						id: teaid
+					})
+					.then(result => {
+						this.historyRecords = result.data;
+					});
+			},
+			refresh() {
+				this.$router.go(0);
+			},
+
+			// viewSubmission(record) {
+			// 	axios({
+			// 			url: `http://127.0.0.1:5000/oe/viewsubmission/`,
+			// 			method: 'POST',
+			// 			data: {
+			// 				record
+			// 			}, //使用POST方式将 id 作为请求体的一部分
+			// 			responseType: 'blob' // 指定响应类型为 Blob
+			// 		})
+			// 		.then(response => {
+			// 			const url = window.URL.createObjectURL(new Blob([response.data]));
+			// 			const a = document.createElement('a');
+			// 			a.href = url;
+			// 			a.download = record.answername;
+			// 			document.body.appendChild(a);
+			// 			a.click();
+			// 			document.body.removeChild(a);
+			// 		})
+			// 		.catch(error => {
+			// 			console.error('Error:', error);
+			// 		});
+			// },
+
+			viewSubmission(record) {
+				// 打开新窗口预览文件
+				window.open(`http://127.0.0.1:5000/oe/preview_material/${record.id}`, '_blank');
+			},
+
+
+
 			performSearch() {
-				this.filteredRecords = this.historyRecords.filter(record => {
-					const matchesName = this.searchName ?
-						record.studentName.toLowerCase().includes(this.searchName.toLowerCase()) :
-						true;
-
-					const matchesDate = this.searchDate ?
-						new Date(record.submitTime).toISOString().split('T')[0] === this.searchDate :
-						true;
-
-					return matchesName && matchesDate;
-				});
+				alert(this.searchName)
+				if (this.searchName) {
+					const lowerQuery = this.searchName.toLowerCase();
+					// alert(lowerQuery);
+					for (let i = 0; i < this.historyRecords.length; i++) {
+						// 这里面的学生姓名由于不是字符串，所以无法进行这样的检索
+						if (!(this.historyRecords[i].title.toLowerCase().includes(lowerQuery))) {
+							//从i开始删除一个元素
+							this.historyRecords.splice(i, 1);
+							i--;
+						}
+					}
+				}
 			},
 			logout() {
 				alert('已退出登录');
@@ -130,7 +288,11 @@
 					formData.append('targetclass', this.selectedClass);
 					formData.append('title', this.exercisetitle);
 					// 因为我还不会使用去获取教师的id或者名字，所以这里就随便设置了
-					let teacherid = 0 ;
+					let teacherid = 0;
+					//这里假如获得了学生的id列表
+					let studentid_s = [2, 3, 4, 5, 6, 7, 8];
+					let studentidString = studentid_s.join(',');
+					formData.append('studentid_s', studentidString);
 					// 到时候这里需要修改的
 					formData.append('teacherid', teacherid);
 					// 使用 axios 进行上传
@@ -166,22 +328,8 @@
 				});
 				alert('练习题上传成功');
 			},
-			addToExercises() {
-				const question = this.knowledgeBase.find(q => q.id === this.selectedKnowledgeQuestion);
-				if (question) {
-					this.exercises.push({
-						id: this.exercises.length + 1,
-						title: question.title,
-						content: question.content,
-						score: 0,
-						feedback: '',
-					});
-					alert('题目已添加到练习');
-				}
-			},
-			viewSubmission() {
-				this.selectedRecord = this.historyRecords.find(record => record.id === this.selectedSubmission);
-			},
+
+
 			submitFeedback() {
 				if (this.selectedRecord) {
 					this.selectedRecord.score = this.score;
@@ -193,11 +341,12 @@
 			},
 			exportProgress() {
 				const data = this.historyRecords.map(record => ({
+					id: record.id,
 					studentName: record.studentName,
+					title: record.title,
 					submitTime: record.submitTime,
-					gradeTime: record.gradeTime,
-					exerciseTitle: record.exerciseTitle,
-					score: record.score,
+					correcttime: record.correcttime,
+					grade: record.grade,
 					feedback: record.feedback,
 				}));
 
@@ -220,6 +369,30 @@
 				const rows = data.map(row => Object.values(row).join(',')).join('\n');
 				return header + rows;
 			},
+
+			submitForm(record) {
+
+
+				const formData = new FormData();
+				formData.append('aimid', record['id']);
+				formData.append('score', this.form.score);
+				formData.append('comments', this.form.comments);
+
+				axios.post('http://127.0.0.1:5000/oe/correct/', formData, {
+						headers: {
+							'Content-Type': 'multipart/form-data'
+						},
+					})
+					.then(response => {
+						alert('成功上传得分', response.data);
+					})
+					.catch(error => {
+						alert('得分上传失败:', error);
+					});
+
+				this.dialogVisible = false; // 提交后关闭弹窗
+			},
+
 		},
 	};
 </script>
@@ -522,7 +695,8 @@
 		/* 设置你需要的宽度 */
 	}
 
-	select,input[type="datetime-local"],
+	select,
+	input[type="datetime-local"],
 	textarea,
 	input[type="file"],
 	input[type="date"] {
@@ -635,5 +809,82 @@
 	.knowledge-base:last-child {
 		margin-right: 0;
 		/* 最后一个元素不需要右边距 */
+	}
+
+
+	/* 弹窗背景遮罩 */
+	.dialog-overlay {
+		position: fixed;
+		top: 0;
+		left: 0;
+		width: 100%;
+		height: 100%;
+		background: rgba(0, 0, 0, 0.5);
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		z-index: 9999;
+		/* 确保弹窗位于最上层 */
+	}
+
+	/* 弹窗样式 */
+	.dialog {
+		background-color: white;
+		padding: 20px;
+		border-radius: 8px;
+		width: 300px;
+		box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+	}
+
+	h3 {
+		margin-top: 0;
+		text-align: center;
+	}
+
+	.form-group {
+		margin-bottom: 15px;
+	}
+
+	label {
+		display: block;
+		font-weight: bold;
+		margin-bottom: 5px;
+	}
+
+	input[type="number"],
+	textarea {
+		width: 100%;
+		padding: 8px;
+		border: 1px solid #ccc;
+		border-radius: 4px;
+		font-size: 14px;
+	}
+
+	.dialog-footer {
+		display: flex;
+		justify-content: flex-end;
+		gap: 10px;
+	}
+
+	button {
+		padding: 8px 16px;
+		border: none;
+		border-radius: 4px;
+		cursor: pointer;
+	}
+
+	.open-dialog-btn {
+		background-color: #409EFF;
+		color: white;
+	}
+
+	.cancel-btn {
+		background-color: #F56C6C;
+		color: white;
+	}
+
+	.submit-btn {
+		background-color: #67C23A;
+		color: white;
 	}
 </style>

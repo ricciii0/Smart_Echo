@@ -6,5 +6,8 @@ class Config:
     # SQLALCHEMY_DATABASE_URI = 'mysql+pymysql://root:ysy200422@localhost:3306/teaching_db'
     # SQLALCHEMY_TRACK_MODIFICATIONS = False
 
-    SQLALCHEMY_DATABASE_URI = 'mysql+pymysql://root:123456@localhost:3306/Smart_Echo'
+    # SQLALCHEMY_DATABASE_URI = 'mysql+pymysql://root:123456@localhost:3306/Smart_Echo'
+    # SQLALCHEMY_TRACK_MODIFICATIONS = False
+
+    SQLALCHEMY_DATABASE_URI = 'mysql+pymysql://root:0215Wy1330@localhost:3306/data_test'
     SQLALCHEMY_TRACK_MODIFICATIONS = False
