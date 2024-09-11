@@ -131,7 +131,7 @@ export default {
     //加载帖子
     async loadPosts() {
     try {
-      const response = await axios.get('http://127.0.0.1:5000/get_posts');
+      const response = await axios.get('http://127.0.0.1:5000/student/community/get_posts');
       this.posts = response.data;
 
       for (const post of this.posts) {
@@ -143,7 +143,7 @@ export default {
       }
     },
     isFavorited(postId){
-      axios.get('http://127.0.0.1:5000/is_favorite', {
+      axios.get('http://127.0.0.1:5000/student/community/is_favorite', {
         params: { 'post_id': postId, 'user_id': this.userid}
     })
       .then(response =>{
@@ -155,7 +155,7 @@ export default {
       })
     },
     loadFavorite(){
-      axios.get('http://127.0.0.1:5000/get_favorite',{
+      axios.get('http://127.0.0.1:5000/student/community/get_favorite',{
         params: {'user_id': this.userid}
       })
       .then(response =>{
@@ -166,7 +166,7 @@ export default {
       })
     },
     loadComments(postId){
-      axios.get('http://127.0.0.1:5000/get_replies', {
+      axios.get('http://127.0.0.1:5000/student/community/get_replies', {
         params: {'post_id': postId}
       })
       .then(response =>{
@@ -187,7 +187,7 @@ export default {
       const post = this.posts.find(p =>p.post_id === postId);
       if(post.is_favorite){
         //  删除
-        axios.delete('http://127.0.0.1:5000/delete_favorite', {
+        axios.delete('http://127.0.0.1:5000/student/community/delete_favorite', {
           data: {'user_id': this.userid, 'post_id': postId},
           headers: {
             'Content-Type': 'application/json'
@@ -212,7 +212,7 @@ export default {
                        now.getMinutes().toString().padStart(2, '0') + ':' +
                        now.getSeconds().toString().padStart(2, '0');
 
-        axios.post('http://127.0.0.1:5000/add_favorite', {
+        axios.post('http://127.0.0.1:5000/student/community/add_favorite', {
           'user_id': this.userid,
           'favorite_time': formattedTime,
           'title': post.title,
@@ -239,7 +239,7 @@ export default {
       const post = this.posts.find(p => p.post_id === postId);
       if (post) {
         post.likes_num++;
-        axios.post('http://127.0.0.1:5000/add_likes_num', {'post_id': postId})
+        axios.post('http://127.0.0.1:5000/student/community/add_likes_num', {'post_id': postId})
         .then(response=>{
           console.log(response);
         })
@@ -265,7 +265,7 @@ export default {
 
       const comment = prompt('请输入您的评论:');
       if(comment){
-        axios.post('http://127.0.0.1:5000/create_replies', {
+        axios.post('http://127.0.0.1:5000/student/community/create_replies', {
         'content': comment,
         'reply_time': formattedTime,
         'publisher_id': this.userid,
@@ -301,7 +301,7 @@ export default {
           content: this.newPostContent,
           title: this.newPostTitle,
         };
-        axios.post('http://127.0.0.1:5000/create_posts', newPost, {
+        axios.post('http://127.0.0.1:5000/student/community/create_posts', newPost, {
           headers:{
             'Content-Type': 'application/json'
           }

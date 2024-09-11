@@ -13,3 +13,10 @@ from teacher.jxnr import routes  # 确保 routes.py 中的路由绑定到 teachi
 teacher.register_blueprint(teaching_blueprint)
 
 
+community_blueprint = Blueprint('community', __name__, url_prefix='/community')
+
+from teacher.sqjl import routes
+
+teacher.register_blueprint(community_blueprint)
+
+
