@@ -9,4 +9,6 @@ export default defineConfig({
       allow: ['..'] // 确保 Vite 允许访问相关目录
     }
   }
-})
+}
+)
+
