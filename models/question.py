@@ -1,4 +1,5 @@
 from mydatabase import db
+from datetime import datetime
 
 class Question(db.Model):
     __tablename__ = 'questions'
@@ -6,7 +7,7 @@ class Question(db.Model):
     student_id = db.Column(db.String(10), nullable=False,doc='发布同学账号')
     question = db.Column(db.Text, nullable=False,doc='问题内容')
     subject = db.Column(db.String(10),nullable=False,doc='所属科目')
-    question_time = db.Column(db.DateTime, nullable=False,doc='问题发布时间')
+    question_time = db.Column(db.DateTime, nullable=False,doc='问题发布时间',default=datetime.utcnow)
     answer = db.Column(db.Text,nullable=True,doc='解答内容')
     is_answer = db.Column(db.Boolean, nullable=False, default=False,doc='是否被解答')
     teacher_id = db.Column(db.String(10), nullable=True,doc='回答老师账号')

@@ -1,4 +1,5 @@
 from mydatabase import db
+from datetime import datetime
 
 class Favorite(db.Model):
     __tablename__ = 'favorite'
@@ -6,7 +7,7 @@ class Favorite(db.Model):
     user_id = db.Column(db.String(10), nullable=False, doc='用户id')
     title = db.Column(db.String(100), nullable=False,doc='标题')
     post_id = db.Column(db.String(20), nullable=False,doc='帖子id')
-    favorite_time = db.Column(db.DateTime, nullable=False, doc='收藏时间')
+    favorite_time = db.Column(db.DateTime, nullable=False, doc='收藏时间', default=datetime.utcnow)
 
     def to_dict(self):
         return {

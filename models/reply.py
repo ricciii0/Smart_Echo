@@ -1,11 +1,12 @@
 from mydatabase import db
+from datetime import datetime
 
 class Reply(db.Model):
     __tablename__ = 'replies'
     reply_id = db.Column(db.String(30),nullable=False,primary_key=True,doc='回复号')
     publisher_id = db.Column(db.String(10), nullable=False, doc='发布人账号')
     content = db.Column(db.Text, nullable=False,doc='内容')
-    reply_time = db.Column(db.DateTime, nullable=False,doc='回复发布时间')
+    reply_time = db.Column(db.DateTime, nullable=False,doc='回复发布时间',default=datetime.utcnow)
 
     likes_num = db.Column(db.Integer, nullable=False, doc='点赞数')
     dislikes_num = db.Column(db.Integer, nullable=False, doc='不赞成数')

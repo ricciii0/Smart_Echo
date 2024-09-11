@@ -1,4 +1,5 @@
 from mydatabase import db
+from datetime import datetime
 
 class Post(db.Model):
     __tablename__ = 'posts'
@@ -6,7 +7,7 @@ class Post(db.Model):
     title = db.Column(db.String(100), nullable=False,doc='标题')
     poster_id = db.Column(db.String(10), nullable=False,doc='发布人账号')
     content = db.Column(db.Text, nullable=False,doc='内容')
-    post_time = db.Column(db.DateTime, nullable=False,doc='主贴发布时间')
+    post_time = db.Column(db.DateTime, nullable=False,doc='主贴发布时间',default=datetime.utcnow)
     likes_num = db.Column(db.Integer, nullable=False, doc='点赞数')
     favorites_num = db.Column(db.Integer, nullable=False,doc='收藏量')
     dislikes_num = db.Column(db.Integer, nullable=False,doc='不赞成数')
