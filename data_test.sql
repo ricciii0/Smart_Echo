@@ -2,8 +2,6 @@
 # DROP DATABASE IF EXISTS `data_test`;
 # CREATE DATABASE `data_test`;
 
-USE `data_test`;
-
 SET NAMES utf8mb4;
 SET FOREIGN_KEY_CHECKS=0;
 
@@ -32,7 +30,10 @@ CREATE TABLE submissions (
     title VARCHAR(25) NOT NULL,
     createtime DATETIME DEFAULT CURRENT_TIMESTAMP,
     exercisecontent LONGBLOB NOT NULL,
+    exercisename VARCHAR(25) NOT NULL,
+
     answer LONGBLOB DEFAULT NULL,
+    answername VARCHAR(25) DEFAULT NULL,
 
     grade VARCHAR(25) DEFAULT NULL,
     feedback VARCHAR(25) DEFAULT NULL,

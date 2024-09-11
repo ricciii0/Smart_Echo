@@ -33,12 +33,12 @@ def getconnection():
     return connection
 
 # 教师进行练习的创建并发布
-def create_exercise(teacherid,studentid,title,targetclass,exerciseontent):
+def create_exercise(teacherid,studentid,title,targetclass,exerciseontent,exercisename):
     connection = getconnection()
     try:
         with connection.cursor() as cursor:
-            sql = "INSERT INTO submissions(teacherid,studentid,title,targetclass,exercisecontent) VALUES (%s,%s,%s,%s,%s)"
-            cursor.execute(sql,(teacherid,studentid,title,targetclass,exerciseontent))
+            sql = "INSERT INTO submissions(teacherid,studentid,title,targetclass,exercisecontent,exercisename) VALUES (%s,%s,%s,%s,%s,%s)"
+            cursor.execute(sql,(teacherid,studentid,title,targetclass,exerciseontent,exercisename))
             connection.commit()
     finally:
         connection.close()
@@ -92,6 +92,20 @@ def gettheFile(id):
     finally:
         connection.close()
 
+def gettheFile_name(id):
+    connection = getconnection()
+    try:
+        with connection.cursor() as cursor:
+            sql = "SELECT exercisename FROM submissions WHERE id=%s"
+            # (filename)会被当成单个元素的参数(filename,)是只含有一个元素的元组
+            cursor.execute(sql,(id,))
+            # fetchall是提取所有数据，fetchone是提取一行数据
+            results = cursor.fetchone()
+            return results['exercisename']
+    finally:
+        connection.close()
+
+
 #文件下载的功能
 def getstusubmission(id):
     connection = getconnection()
@@ -106,6 +120,18 @@ def getstusubmission(id):
     finally:
         connection.close()
 
+def getstusubmissionname(id):
+    connection = getconnection()
+    try:
+        with connection.cursor() as cursor:
+            sql = "SELECT answername FROM submissions WHERE id=%s"
+            # (filename)会被当成单个元素的参数(filename,)是只含有一个元素的元组
+            cursor.execute(sql,(id,))
+            # fetchall是提取所有数据，fetchone是提取一行数据
+            results = cursor.fetchone()
+            return results['answername']
+    finally:
+        connection.close()
 
 
 #老师从资料库中上传
@@ -127,18 +153,18 @@ def createfromdatabase(userid,targetclass,title,ddl,databaseid):
         connection.close()
 
 # 学生端进行练习的提交
-def stu_submit(exerciseid,answer):
+def stu_submit(exerciseid,answer,answername):
     connection = getconnection()
     try:
         with connection.cursor() as cursor:
             update_query = """
             UPDATE submissions
-            SET answer = %s,submittime=%s
+            SET answer = %s,submittime=%s,answername=%s
             WHERE id = %s
             """
             now = datetime.now()
             formatted_datetime = now.strftime('%Y-%m-%d %H:%M:%S')
-            cursor.execute(update_query,(answer,formatted_datetime,exerciseid))
+            cursor.execute(update_query,(answer,formatted_datetime,answername,exerciseid))
             connection.commit()
     finally:
         connection.close()

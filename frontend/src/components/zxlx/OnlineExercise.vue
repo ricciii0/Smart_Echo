@@ -30,7 +30,7 @@
 				<div class="student-submissions">
 					<h3>查看学生提交记录</h3>
 					<div class="search-bar">
-						<input type="text" v-model="searchName" placeholder="输入学生姓名或练习内容" />
+						<input type="text" v-model="searchName" placeholder="输入练习内容" />
 						<button @click="performSearch">搜索</button>
 						<button @click="refresh">刷新</button>
 					</div>
@@ -156,7 +156,7 @@
 				feedback: '',
 
 				exercisetitle: '',
-				exercisetitle2:'',
+				exercisetitle2: '',
 
 				dialogVisible: false,
 				form: {
@@ -171,8 +171,8 @@
 		},
 
 		methods: {
-			getKnowledgeRecords(){
-				let teaid = 0 ;
+			getKnowledgeRecords() {
+				let teaid = 0;
 				axios.get('http://127.0.0.1:5000/rm/printdb/', {
 						params: {
 							teaid: teaid
@@ -183,7 +183,7 @@
 					});
 			},
 			addToExercises() {
-				if (this.selectedKnowledgeQuestion!=null&&this.exercisetitle2) {
+				if (this.selectedKnowledgeQuestion != null && this.exercisetitle2) {
 					// 进行文件上传的操作,const用作创建一个常量的变量，new是创建出来一个新的对象
 					const formData = new FormData();
 					formData.append('targetclass', this.selectedClass);
@@ -209,7 +209,7 @@
 						.catch(error => {
 							alert('文件上传失败', error);
 						});
-				} else if (this.selectedKnowledgeQuestion==null) {
+				} else if (this.selectedKnowledgeQuestion == null) {
 					alert('管理员梁耀欣提示您：没有从知识库中选择练习');
 				} else {
 					alert('管理员梁耀欣提示您：没有指定标题');
@@ -228,28 +228,35 @@
 				this.$router.go(0);
 			},
 
+			// viewSubmission(record) {
+			// 	axios({
+			// 			url: `http://127.0.0.1:5000/oe/viewsubmission/`,
+			// 			method: 'POST',
+			// 			data: {
+			// 				record
+			// 			}, //使用POST方式将 id 作为请求体的一部分
+			// 			responseType: 'blob' // 指定响应类型为 Blob
+			// 		})
+			// 		.then(response => {
+			// 			const url = window.URL.createObjectURL(new Blob([response.data]));
+			// 			const a = document.createElement('a');
+			// 			a.href = url;
+			// 			a.download = record.answername;
+			// 			document.body.appendChild(a);
+			// 			a.click();
+			// 			document.body.removeChild(a);
+			// 		})
+			// 		.catch(error => {
+			// 			console.error('Error:', error);
+			// 		});
+			// },
+
 			viewSubmission(record) {
-				axios({
-						url: `http://127.0.0.1:5000/oe/viewsubmission/`,
-						method: 'POST',
-						data: {
-							record
-						}, //使用POST方式将 id 作为请求体的一部分
-						responseType: 'blob' // 指定响应类型为 Blob
-					})
-					.then(response => {
-						const url = window.URL.createObjectURL(new Blob([response.data]));
-						const a = document.createElement('a');
-						a.href = url;
-						a.download = record.title;
-						document.body.appendChild(a);
-						a.click();
-						document.body.removeChild(a);
-					})
-					.catch(error => {
-						console.error('Error:', error);
-					});
+				// 打开新窗口预览文件
+				window.open(`http://127.0.0.1:5000/oe/preview_material/${record.id}`, '_blank');
 			},
+
+
 
 			performSearch() {
 				alert(this.searchName)
@@ -364,8 +371,7 @@
 			},
 
 			submitForm(record) {
-				alert(record['id']);
-				// 通过 this.$refs 访问文件输入框
+
 
 				const formData = new FormData();
 				formData.append('aimid', record['id']);
