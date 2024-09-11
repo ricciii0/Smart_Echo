@@ -1,94 +1,72 @@
-<template>
-  <div class="forgot-password-page">
-    <div class="forgot-password-container">
-      <h1>忘记密码</h1>
-      <p>请输入您的邮箱以重置密码：</p>
-      <input type="email" v-model="email" placeholder="请输入邮箱" required />
-       <!-- 验证码输入框 -->
-      <div class="verification-container">
-        <input type="text" v-model="verificationCode" placeholder="请输入验证码" required />
-        <button class="send-code-btn" @click="sendVerificationCode">发送验证码</button>
+  <template>
+    <div class="forgot-password-page">
+      <div class="forgot-password-container">
+        <h1>忘记密码</h1>
+        <p>请输入您的邮箱以重置密码：</p>
+        <input type="email" v-model="email" placeholder="请输入邮箱" required />
+         <!-- 验证码输入框 -->
+        <div class="verification-container">
+          <input type="text" v-model="verificationCode" placeholder="请输入验证码" required />
+          <button class="send-code-btn" @click="sendVerificationCode">发送验证码</button>
+        </div>
+   <button @click="verifyCode">确定</button>
+        <div class="link" @click="$router.push('/')">返回登录</div>
       </div>
- <button @click="verifyCode">确定</button>
-      <div class="link" @click="$router.push('/')">返回登录</div>
     </div>
-  </div>
-</template>
+  </template>
 
-<script>
-import axios from 'axios';
-export default {
-  data() {
-    return {
-      email: '',
-       verificationCode: '',
-      correctCode:null, // 假设这是正确的验证码，实际情况应该从服务器获取并验证
+  <script>
+  import axios from 'axios';
+  export default {
+    data() {
+      return {
+        email: '',
+         verificationCode: '',
 
-    };
-  },
-  methods: {
-     // 发送验证码到用户邮箱
-    async sendVerificationCode() {
-      if (!this.email) {
-        alert('请输入邮箱');
-        return;
-      }
-      try {
-        const response = await axios.post('http://127.0.0.1:5000/auth/forgot/', { email: this.email });
-        if (response.status === 200) {
-          alert('验证码已发送到您的邮箱，请检查您的邮件。');
-          this.correctCode = response.data.code; // 从服务器获取正确的验证码
-        } else {
-          alert('发送验证码失败，请稍后再试。');
-        }
-      } catch (error) {
-        console.error('发送验证码时出错:', error);
-        alert('发送验证码时出错，请稍后再试。');
-      }
+
+      };
     },
+    methods: {
+       // 发送验证码到用户邮箱
+      async sendVerificationCode() {
+  if (!this.email) {
+    alert('请输入邮箱');
+    return;
+  }
+  try {
+    const response = await axios.post('http://127.0.0.1:5000/auth/forgot/', { receiver_email: this.email });
+    if (response.status === 200) {
+      alert('验证码已发送到您的邮箱，请检查您的邮件。');
+    } else {
+      alert('发送验证码失败，请稍后再试。');
+    }
+  } catch (error) {
+    console.error('发送验证码时出错:', error);
+    alert('发送验证码时出错，请稍后再试。');
+  }
+},
 
-    // 验证用户输入的验证码是否正确
+
+      // 验证用户输入的验证码是否正确
     async verifyCode() {
-      if (!this.verificationCode) {
+    if (!this.verificationCode) {
         alert('请输入验证码');
         return;
-      }
-      try {
-        const response = await axios.post('http://127.0.0.1:5000/auth/forgot/verify/', { input_code: this.verificationCode });
-        if (response.status === 200) {
-          alert('验证码正确');
-          this.$router.push('/reset-password'); // 跳转到重置密码页面
-        } else {
-          alert('验证码错误，请重新输入。');
-        }
-      } catch (error) {
-        console.error('验证码验证时出错:', error);
-        alert('验证码验证时出错，请稍后再试。');
-      }
-    },
-     async resetPassword() {
-    if (!this.newPassword) {
-      alert('请输入新密码');
-      return;
     }
     try {
-      const response = await axios.post('http://127.0.0.1:5000/auth/forgot/reset/', {
-        password: this.newPassword
-      });
-      if (response.status === 200) {
-        alert('密码重置成功');
-        this.$router.push('/'); // 重置密码成功后，跳转回登录页面
-      } else {
-        alert('重置密码失败，请稍后再试。');
-      }
+        const response = await axios.post('http://127.0.0.1:5000/auth/forgot/verify/', { input_code: this.verificationCode });
+        if (response.status === 200) {
+            alert('验证码正确');
+            this.$router.push('/reset-password'); // 跳转到重置密码页面
+        }
     } catch (error) {
-      console.error('重置密码时出错:', error);
-      alert('重置密码时出错，请稍后再试。');
+        alert('验证码验证时出错，请稍后再试。'); // 统一的错误提示
     }
-  },
-  },
-};
-</script>
+}
+    },
+
+  };
+  </script>
 
 <style scoped>
 .forgot-password-page {

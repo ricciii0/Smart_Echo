@@ -21,10 +21,7 @@
       />
 
       <!-- 提交按钮 -->
-      <button @click="submitNewPassword">确定</button>
-
-      <!-- 当密码一致时，显示 router-link 进行跳转 -->
-
+      <button @click="resetPassword">确定</button>
 
       <!-- 返回登录 -->
       <div class="link" @click="$router.push('/')">返回登录</div>
@@ -52,40 +49,27 @@ export default {
     };
   },
   methods: {
-    async submitNewPassword() {
-      if (this.newPassword === this.confirmPassword) {
-        try {
-          // 发送密码更新请求到后端
-          await this.updatePassword(this.newPassword);
-
-          // 密码更新成功，显示跳转按钮
-          this.isPasswordReset = true;
-        } catch (error) {
-          // 处理错误
-          console.error('密码更新失败', error);
-          alert('密码更新失败，请重试');
-        }
+    async resetPassword() {
+  if (this.newPassword === this.confirmPassword) {
+    try {
+      const response = await axios.post('http://127.0.0.1:5000/auth/forgot/reset/', {
+        password: this.newPassword
+      });
+      if (response.status === 200) {
+        alert('密码重置成功');
+        this.$router.push('/'); // 重置密码成功后，跳转回登录页面
       } else {
-        alert('两次密码输入不一致，请重新输入');
+        alert('重置密码失败，请稍后再试。');
       }
-    },
+    } catch (error) {
+      console.error('重置密码时出错:', error);
+      alert('重置密码时出错，请稍后再试。');
+    }
+  } else {
+    alert('两次密码输入不一致，请重新输入');
+  }
+}}
 
-    async updatePassword(newPassword) {
-      // 向后端发送密码更新请求
-      try {
-        const response = await axios.post('http://127.0.0.1:5000/update-password', {
-          newPassword: newPassword,
-        });
-
-        if (!response.data.success) {
-          throw new Error(response.data.message || '密码更新失败');
-        }
-        return response;
-      } catch (error) {
-        throw error;
-      }
-    },
-  },
 };
 </script>
 
