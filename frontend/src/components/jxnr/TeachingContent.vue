@@ -37,11 +37,9 @@
             </tr>
           </thead>
           <tbody>
-            <tr v-for="(resource, index) in resources" :key="index">
-              <td>
-                <input type="checkbox" v-model="resource.selected" />
-              </td>
-              <td>{{ index + 1 }}</td>
+            <tr v-for="(resource, index) in paginatedResources" :key="index">
+              <td><input type="checkbox" v-model="resource.selected" /></td>
+              <td>{{ index + 1 + (currentPage - 1) * itemsPerPage }}</td>
               <td>{{ resource.filename }}</td>
               <td>{{ resource.uploadTime }}</td>
               <td>
@@ -57,11 +55,13 @@
     @close="closeDetail"
   />
 
-		        <div class="pagination">
-		          <button @click="changePage(currentPage - 1)" :disabled="currentPage === 1">上一页</button>
-		          <span>第 {{ currentPage }} 页</span>
-		          <button @click="changePage(currentPage + 1)" :disabled="currentPage >= totalPages">下一页</button>
-		        </div>
+                <div class="pagination">
+                  <button @click="changePage(currentPage - 1)" :disabled="currentPage === 1">上一页</button>
+                  <span>第 {{ currentPage }} 页 / 共 {{ totalPages }} 页</span>
+                  <button @click="changePage(currentPage + 1)" :disabled="currentPage === totalPages">下一页</button>
+                </div>
+
+
 
         <div class="action-buttons">
           <button @click="deleteSelected">删除</button>
@@ -91,48 +91,53 @@
 		    Sidebar,
 			UserControls,
 		  },
-  // data() {
-  //     return {
-  //
-  //       username: 'admin',
-  //       selectedClass: '班级1',
-  //       resourceName: '',
-  //       selectedUploadTime: '全部',
-  //       generatedFileType: '全部',
-  //       resources: [
-  //         { name: 'C++讲义1', uploadTime: '2024-08-20', selected: false },
-  //         { name: 'Python讲义1', uploadTime: '2024-08-20', selected: false },
-  //         // 更多数据行...
-  //       ],
-  //       showDetail: false,
-  //       selectedResource: null,
-  //       currentPage: 1,
-  //       itemsPerPage: 5, // 每页显示的条数
-  //     };
-  //   },
-    data() {
-    return {
-      resourceName: '',  // 用户输入的讲义名称
-      selectedUploadTime: '',  // 用户选择的上传时间
-      resources: []  // 查询结果将存储在这里
-    };
-  },
 
-
-    computed: {
-      totalPages() {
-        return Math.ceil(this.resources.length / this.itemsPerPage);
-      },
-      paginatedResources() {
-        const start = (this.currentPage - 1) * this.itemsPerPage;
-        return this.resources.slice(start, start + this.itemsPerPage);
-      },
-    },
-  methods: {
-  //   viewResource(resource) {
-  //   this.selectedResource = resource;
-  //   this.showDetail = true;
+  //   data() {
+  //   return {
+  //     resourceName: '',  // 用户输入的讲义名称
+  //     selectedUploadTime: '',  // 用户选择的上传时间
+  //     resources: []  // 查询结果将存储在这里
+  //   };
   // },
+    data() {
+  return {
+    resourceName: '',
+    selectedUploadTime: '',
+    resources: [],  // 查询结果将存储在这里
+    currentPage: 1,  // 当前页
+    itemsPerPage: 10,  // 每页展示的条数
+  };
+},
+
+    // computed: {
+    //   totalPages() {
+    //     return Math.ceil(this.resources.length / this.itemsPerPage);
+    //   },
+    //   paginatedResources() {
+    //     const start = (this.currentPage - 1) * this.itemsPerPage;
+    //     return this.resources.slice(start, start + this.itemsPerPage);
+    //   },
+    // },
+    computed: {
+  paginatedResources() {
+    // 计算当前页的开始和结束索引
+    const start = (this.currentPage - 1) * this.itemsPerPage;
+    const end = start + this.itemsPerPage;
+    // 切片返回当前页的数据
+    return this.resources.slice(start, end);
+  },
+  totalPages() {
+    return Math.ceil(this.resources.length / this.itemsPerPage);
+  }
+},
+
+
+  methods: {
+        changePage(page) {
+    if (page > 0 && page <= this.totalPages) {
+      this.currentPage = page;
+    }
+  },
 
     viewResource(fileId) {
     // 打开新窗口预览文件
@@ -158,32 +163,60 @@
 
 
     //上传文件
+  //   async uploadFile() {
+  //   // 获取用户选择的文件
+  //   const file = this.$refs.uploadFile.files[0];
+  //   if (!file) {
+  //     alert('请先选择文件');
+  //     return;
+  //   }
+  //
+  //   // 创建 FormData 对象
+  //   const formData = new FormData();
+  //   formData.append('file', file);  // 文件
+  //   formData.append('subject', this.resourceName);  // 讲义名称（假设与文件名一起上传）
+  //
+  //   try {
+  //     // 发送 POST 请求到后端
+  //     const response = await axios.post('http://127.0.0.1:5000/teacher/teaching/upload_material', formData, {
+  //       headers: {
+  //         'Content-Type': 'multipart/form-data'
+  //       }
+  //     });
+  //     alert(response.data.message);  // 提示上传结果
+  //   } catch (error) {
+  //     console.error('上传失败:', error);
+  //     alert('文件上传失败，请重试');
+  //   }
+  // },
     async uploadFile() {
-    // 获取用户选择的文件
-    const file = this.$refs.uploadFile.files[0];
-    if (!file) {
-      alert('请先选择文件');
-      return;
-    }
+  const file = this.$refs.uploadFile.files[0];
+  if (!file) {
+    alert('请先选择文件');
+    return;
+  }
 
-    // 创建 FormData 对象
-    const formData = new FormData();
-    formData.append('file', file);  // 文件
-    formData.append('subject', this.resourceName);  // 讲义名称（假设与文件名一起上传）
+  const formData = new FormData();
+  formData.append('file', file);
+  formData.append('subject', this.resourceName);
 
-    try {
-      // 发送 POST 请求到后端
-      const response = await axios.post('http://127.0.0.1:5000/teacher/teaching/upload_material', formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data'
-        }
-      });
-      alert(response.data.message);  // 提示上传结果
-    } catch (error) {
-      console.error('上传失败:', error);
-      alert('文件上传失败，请重试');
-    }
-  },
+  try {
+    const response = await axios.post('http://127.0.0.1:5000/teacher/teaching/upload_material', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data'
+      }
+    });
+    alert(response.data.message);  // 提示上传结果
+
+    // 上传成功后刷新文件列表
+    this.searchResources();
+
+  } catch (error) {
+    console.error('上传失败:', error);
+    alert('文件上传失败，请重试');
+  }
+},
+
 
     async searchResources() {
       try {
@@ -202,11 +235,11 @@
       }
     },
 
-	    changePage(page) {
-	      if (page > 0 && page <= this.totalPages) {
-	        this.currentPage = page;
-	      }
-	    },
+	    // changePage(page) {
+	    //   if (page > 0 && page <= this.totalPages) {
+	    //     this.currentPage = page;
+	    //   }
+	    // },
     // deleteSelected() {
     //   // 删除选中的资源逻辑
     //   alert('删除功能尚未实现');
