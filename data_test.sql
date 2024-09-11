@@ -2,8 +2,6 @@
 # DROP DATABASE IF EXISTS `data_test`;
 # CREATE DATABASE `data_test`;
 
-USE `data_test`;
-
 SET NAMES utf8mb4;
 SET FOREIGN_KEY_CHECKS=0;
 

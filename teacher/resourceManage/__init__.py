@@ -3,7 +3,8 @@ from flask import Blueprint, jsonify, request, Response
 rm_bp=Blueprint('rm_bp',__name__,url_prefix='/rm')
 from teacher.resourceManage.resourceManage import getsqlResource, storefile, deletefile, getfile
 
-
+from flask_cors import CORS  # 导入CORS库
+CORS(rm_bp, supports_credentials=True)  # 启用CORS，允许跨域请求
 @rm_bp.route('/print/')
 def homeprint():
     aimid = request.args.get('teaid')

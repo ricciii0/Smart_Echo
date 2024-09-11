@@ -24,8 +24,8 @@ def getconnection():
     # 最后是cursorclass应该是指定查询结果的返回形式，这里指定的是字典光标，应该返回的是字典形式8
     connection = pymysql.connect(host='localhost',
                                  user='root',
-                                 password='0215Wy1330',
-                                 db='data_test',
+                                 password='ysy200422',
+                                 db='teaching_db',
                                  cursorclass=pymysql.cursors.DictCursor)
     return connection
 

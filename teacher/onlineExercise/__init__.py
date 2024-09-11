@@ -5,7 +5,8 @@ from teacher.onlineExercise.onlineExercise import create_exercise, getexercise, 
 from teacher.resourceManage import getfile
 
 oe_bp=Blueprint('oe_bp',__name__,url_prefix='/oe')
-
+from flask_cors import CORS  # 导入CORS库
+CORS(oe_bp, supports_credentials=True)  # 启用CORS，允许跨域请求
 
 @oe_bp.route('/upload/', methods=['POST'])
 def upload():
