@@ -10,7 +10,7 @@ def add_favorite():
     if not data:
         return jsonify({"error": "No data provided"}), 400
 
-    required_fields = ['user_id','favorite_time','title','post_id']
+    required_fields = ['user_id','title','post_id']
 
     if not all(field in data for field in required_fields):
         return jsonify({"error": "Missing required fields"}), 400
@@ -21,7 +21,6 @@ def add_favorite():
         count = len(favorite)
 
     new_favorite = Favorite(
-        favorite_time=data['favorite_time'],
         title=data['title'],
         post_id=data['post_id'],
         user_id=data['user_id'],

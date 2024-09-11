@@ -61,7 +61,7 @@
               </div>
             </div>
             <!-- 没有收藏时显示的提示信息 -->
-            <p v-else>404 not found</p>
+            <p v-else>收藏夹为空</p>
           </div>
         </div>
 
@@ -79,10 +79,10 @@
                 <label for="post-content">内容:</label>
                 <textarea v-model="newPostContent" id="post-content" rows="5" placeholder="请输入帖子内容"></textarea>
               </div>
-              <div class="form-group">
+              <!--<div class="form-group">
                 <label for="file-upload">上传文件:</label>
                 <input type="file" id="file-upload" @change="handleFileUpload" />
-              </div>
+              </div> -->
               <!-- 提交按钮 -->
                <br>
               <button type="submit">提交</button>
@@ -118,7 +118,7 @@ export default {
       showPostModal: false, // 是否显示发表帖子弹窗
 
       newPostContent: '', // 新帖子的内容
-      uploadedFile: null, // 上传的文件
+      //uploadedFile: null, // 上传的文件
       newPostTitle: '',
     };
   },
@@ -204,17 +204,8 @@ export default {
         this.favoritePosts.pop(favorite);
       }
       else{
-        const now = new Date();
-        const formattedTime = now.getFullYear() + '-' +
-                       (now.getMonth() + 1).toString().padStart(2, '0') + '-' +
-                       now.getDate().toString().padStart(2, '0') + ' ' +
-                       now.getHours().toString().padStart(2, '0') + ':' +
-                       now.getMinutes().toString().padStart(2, '0') + ':' +
-                       now.getSeconds().toString().padStart(2, '0');
-
         axios.post('http://127.0.0.1:5000/student/community/add_favorite', {
           'user_id': this.userid,
-          'favorite_time': formattedTime,
           'title': post.title,
           'post_id': postId,
         })
@@ -255,19 +246,10 @@ export default {
     },
     // 添加评论
     commentPost(postId) {
-      const now = new Date();
-      const formattedTime = now.getFullYear() + '-' +
-                       (now.getMonth() + 1).toString().padStart(2, '0') + '-' +
-                       now.getDate().toString().padStart(2, '0') + ' ' +
-                       now.getHours().toString().padStart(2, '0') + ':' +
-                       now.getMinutes().toString().padStart(2, '0') + ':' +
-                       now.getSeconds().toString().padStart(2, '0');
-
       const comment = prompt('请输入您的评论:');
       if(comment){
         axios.post('http://127.0.0.1:5000/student/community/create_replies', {
         'content': comment,
-        'reply_time': formattedTime,
         'publisher_id': this.userid,
         "post_id": postId,
       })
@@ -285,19 +267,9 @@ export default {
     },
     // 提交帖子
     submitPost() {
-      const now = new Date();
-      const formattedTime = now.getFullYear() + '-' +
-                            (now.getMonth() + 1).toString().padStart(2, '0') + '-' +
-                            now.getDate().toString().padStart(2, '0') + ' ' +
-                            now.getHours().toString().padStart(2, '0') + ':' +
-                            now.getMinutes().toString().padStart(2, '0') + ':' +
-                            now.getSeconds().toString().padStart(2, '0');
-
-
       if (this.newPostContent && this.newPostTitle) {
         const newPost = {
           poster_id: this.userid,
-          post_time: formattedTime,
           content: this.newPostContent,
           title: this.newPostTitle,
         };
@@ -317,7 +289,7 @@ export default {
 
         this.newPostContent = '';
         this.newPostTitle = '';
-        this.uploadedFile = null;
+        //this.uploadedFile = null;
         this.togglePostModal(); // 关闭发表帖子弹窗
       } else {
         alert('标题与内容不能为空！');

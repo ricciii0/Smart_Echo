@@ -9,7 +9,7 @@ def create_replies():
     if not data:
         return jsonify({"error": "No data provided"}), 400
 
-    required_fields = ['content', 'reply_time','publisher_id', 'post_id']
+    required_fields = ['content','publisher_id', 'post_id']
     if not all(field in data for field in required_fields):
         return jsonify({"error": "Missing required fields"}), 400
 
@@ -22,7 +22,6 @@ def create_replies():
         reply_id = data['post_id']+'_'+str(count+1),
         publisher_id = data['publisher_id'],
         content=data['content'],
-        reply_time=data['reply_time'],
         post_id=data['post_id'],
 
         likes_num = 0,

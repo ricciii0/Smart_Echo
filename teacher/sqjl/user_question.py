@@ -7,7 +7,7 @@ def create_questions():
     if not data:
         return jsonify({"error": "No data provided"}), 400
 
-    required_fields = ['student_id', 'question', 'subject', 'question_time']
+    required_fields = ['student_id', 'question', 'subject']
     if not all(field in data for field in required_fields):
         return jsonify({"error": "Missing required fields"}), 400
 
@@ -20,7 +20,6 @@ def create_questions():
         student_id=data['student_id'],
         question=data['question'],
         subject=data['subject'],
-        question_time=data['question_time'],
         answer='',
         is_answer=False,
         teacher_id='',

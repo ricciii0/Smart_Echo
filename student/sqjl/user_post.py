@@ -7,7 +7,7 @@ def create_posts():
     if not data:
         return jsonify({"error": "No data provided"}), 400
 
-    required_fields = ['title', 'poster_id', 'content', 'post_time']
+    required_fields = ['title', 'poster_id', 'content']
     if not all(field in data for field in required_fields):
         return jsonify({"error": "Missing required fields"}), 400
 
@@ -21,7 +21,6 @@ def create_posts():
         title=data['title'],
         poster_id=data['poster_id'],
         content=data['content'],
-        post_time=data['post_time'],
 
         likes_num = 0,
         dislikes_num = 0,
