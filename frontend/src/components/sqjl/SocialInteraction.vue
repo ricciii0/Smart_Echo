@@ -13,11 +13,12 @@
         <!-- 帖子区 -->
         <div class="post-area">
           <h3>讨论区</h3>
+          <br>
           <!-- 收藏夹按钮 -->
           <button @click="toggleFavorites">收藏夹</button>
           <!-- 发表帖子按钮，点击弹出发表帖子表单 -->
           <button @click="togglePostModal">发表帖子</button>
-          
+
           <!-- 帖子列表，v-for循环渲染所有帖子 -->
           <div class="post" v-for="post in posts" :key="post.post_id">
             <div class="post-header">
@@ -42,7 +43,8 @@
             <!-- 评论区，显示所有评论 -->
             <div v-if="post.showComments" class="comment-section">
               <div v-for="comment in post.comments" :key="comment.reply_id" class="comment-item">
-                {{ comment.content }}
+                 <div class="comment-content">{{ comment.content }}</div>
+                <div class="comment-footer">{{comment.publisher_id}}    {{comment.reply_time}}</div>
               </div>
             </div>
           </div>
@@ -74,18 +76,19 @@
              <br>
             <form @submit.prevent="submitPost">
               <div class="form-group">
-                <label for="post-title">标题</label>
-                <textarea v-model="newPostTitle" id="post-title" rows="1" placeholder="请输入帖子标题"></textarea>
+                <label for="post-title">标题:</label>
+                <textarea v-model="newPostTitle" class="post-add" rows="1" placeholder="请输入帖子标题"></textarea>
                 <label for="post-content">内容:</label>
-                <textarea v-model="newPostContent" id="post-content" rows="5" placeholder="请输入帖子内容"></textarea>
+                <textarea v-model="newPostContent" class="post-content" rows="5" placeholder="请输入帖子内容"></textarea>
               </div>
               <!--<div class="form-group">
-                <label for="file-upload">上传文件:</label>
+                <label for="file-upload">上传文件: </label>
                 <input type="file" id="file-upload" @change="handleFileUpload" />
               </div> -->
+
               <!-- 提交按钮 -->
                <br>
-              <button type="submit">提交</button>
+              <button type="submit" id="favorite-submit">提交</button>
             </form>
           </div>
         </div>
@@ -148,7 +151,7 @@ export default {
     })
       .then(response =>{
         const post = this.posts.find(p => p.post_id === postId);
-        post.is_favorite = response.data;
+        post.is_favorite = response.data.is_favorite;
       })
       .catch(error =>{
         console.log(error);
@@ -255,7 +258,6 @@ export default {
       })
         .then(response=>{
           const post = this.posts.find(p => p.post_id === postId);
-          post.comments = [];
           post.comments.push(response.data);
           post.replies_num ++;
         })
@@ -281,6 +283,7 @@ export default {
         .then(response =>{
           response.data.is_favorite = false;
           response.data.is_like = false;
+          response.data.comments = [];
           this.posts.push(response.data);
         })
         .catch(error =>{
@@ -366,11 +369,11 @@ select:focus {
 
 .post-area {
 	width: 100%; /* 占满父容器宽度 */
-	 height:700px;
+	 height:400px;
 	 overflow-y: auto;
 	 padding:20px;
-	 
-	
+
+
   background: rgba(255, 255, 255, 0.8);
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
   margin-top: 30px;
@@ -439,7 +442,8 @@ button:hover {
   background: white;
   padding: 20px;
   border-radius: 5px;
-  width: 300px;
+  width: 600px;
+  height: auto;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
   position: relative;
 }
@@ -467,8 +471,8 @@ button:hover {
 
 .post {
 
-	 max-height: 100px; /* 固定最大高度 */
-	  overflow-y: auto; /* 启用垂直滚动 */
+  max-height: 200px; /* 固定最大高度 */
+  overflow-y: auto; /* 启用垂直滚动 */
   padding: 10px;
   margin-bottom: 10px;
   border-radius: 5px;
@@ -478,15 +482,35 @@ button:hover {
 .post-header {
   display: flex;
   justify-content: space-between;
-  margin-bottom: 10px;
+  margin-bottom: 4px;
+  font-size: 8px;
+}
+
+.post-title {
+    font-size: 12px; /* 字体大小 */
+    font-weight: bold; /* 字体加粗 */
+    color: #333; /* 字体颜色 */
+    margin-bottom: 6px; /* 与内容的间距 */
+    text-align: center;
+}
+
+/* 帖子内容样式 */
+.post-content {
+    font-size: 10px; /* 字体大小 */
+  font-weight: bold;
+    line-height: 1.6; /* 行高 */
+    color: #666; /* 字体颜色 */
+    margin-bottom: 20px; /* 与底部的间距 */
 }
 
 .post-footer {
   display: flex;
   justify-content: space-between;
+  font-size: 10px;
 }
 .post-area {
   background: rgba(255, 255, 255, 0.8);
+  height: 600px;
   padding: 30px;
   margin-top: 30px;
   border-radius: 5px;
@@ -497,6 +521,7 @@ button:hover {
 .question-container {
   display: flex;
   flex: 1;
+
 }
 
 .question-list {
@@ -506,12 +531,15 @@ button:hover {
   background: rgba(255, 255, 255, 0.8);
   border-radius: 5px;
   padding: 10px;
+
+  margin-right: 10px;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
 }
 
 .question-item {
   padding: 10px;
   margin-bottom: 5px;
+  margin-right: 10px;
   border-radius: 5px;
   background-color: #f7f7f7;
   cursor: pointer;
@@ -527,6 +555,7 @@ button:hover {
 }
 input[type="file"] {
   margin-top: 10px;
+  margin-right: 10px;
 }
 .pagination {
   display: flex;
@@ -539,7 +568,7 @@ input[type="file"] {
   background: rgba(255, 255, 255, 0.8);
   padding: 30px;
   border-radius: 5px;
-  
+
 }
 
 
@@ -557,12 +586,15 @@ input[type="file"] {
 
 .teacher-response {
   margin-top: 15px;
-  
+  margin-left:30px;
+  margin-right: 20px;
+
 }
 
 textarea {
   width: 100%;
   padding: 10px;
+  height: 200px;
   border-radius: 5px;
   border: 1px solid #ced4da;
   background-color: #fff;
@@ -580,5 +612,20 @@ textarea {
   border-radius: 5px;
   background-color: #f9f9f9;
 }
+
+.comment-content{
+  font-size: 10px;
+}
+.comment-footer{
+  display: flex;
+  justify-content: right;
+  font-size: 5px;
+}
+
+.favorite-submit{
+  display: flex;
+  justify-content: center;
+}
+
 
 </style>

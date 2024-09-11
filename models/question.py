@@ -1,3 +1,5 @@
+from email.policy import default
+
 from mydatabase import db
 from datetime import datetime
 
@@ -11,7 +13,7 @@ class Question(db.Model):
     answer = db.Column(db.Text,nullable=True,doc='解答内容')
     is_answer = db.Column(db.Boolean, nullable=False, default=False,doc='是否被解答')
     teacher_id = db.Column(db.String(10), nullable=True,doc='回答老师账号')
-    answer_time = db.Column(db.DateTime, nullable=True, doc='问题解答时间')
+    answer_time = db.Column(db.DateTime, nullable=True, doc='问题解答时间', default=datetime.utcnow)
 
     def to_dict(self):
         return {

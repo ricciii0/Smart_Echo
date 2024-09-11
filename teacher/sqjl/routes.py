@@ -5,6 +5,7 @@ from teacher.sqjl.user_post import (create_posts,delete_posts,get_posts_by_likes
                        get_posts_by_favorites,get_post, get_posts, add_likes_num)
 from teacher.sqjl.user_reply import create_replies,delete_replies,get_replies
 from teacher.sqjl.user_favorite import (add_favorite,delete_favorite,get_favorite, is_favorite)
+from teacher.sqjl.answer_file import upload_answer_file, delete_answer_file, download_answer_file
 from flask_cors import CORS  # 导入CORS库
 
 
@@ -93,3 +94,15 @@ def add__favorite():
 @community_blueprint.route('/is_favorite', methods=['GET'])
 def is__favorite():
     return is_favorite()
+
+@community_blueprint.route('/upload_answer_file', methods=['POST'])
+def upload__answer_file():
+    return upload_answer_file()
+
+@community_blueprint.route('/delete_answer_file', methods=['DELETE'])
+def delete__answer_file():
+    return delete_answer_file()
+
+@community_blueprint.route('/download_answer_file', methods=['GET'])
+def download__answer_file():
+    return download_answer_file()

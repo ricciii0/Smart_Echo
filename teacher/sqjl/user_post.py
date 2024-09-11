@@ -1,3 +1,7 @@
+import random
+import string
+from datetime import datetime
+
 from flask import Flask, request, jsonify,make_response
 from models.post import Post
 from mydatabase import db
@@ -5,18 +9,19 @@ from mydatabase import db
 def create_posts():
     data = request.get_json()
     if not data:
-        return jsonify({"error": "No data provided"}), 400
+        return jsonify({"error": "未提供指定数据"}), 400
 
     required_fields = ['title', 'poster_id', 'content']
     if not all(field in data for field in required_fields):
-        return jsonify({"error": "Missing required fields"}), 400
+        return jsonify({"error": "关键数据缺失"}), 400
 
     count = 0
     posts = Post.query.all()
     if posts:
         count = len(posts)
+    random_chars = ''.join(random.choice(string.ascii_letters) for _ in range(4))
     new_post = Post(
-        post_id=data['poster_id'] + '_' + str(count+1),
+        post_id=data['poster_id'] + '_' + random_chars + "_" + str(count+1),
 
         title=data['title'],
         poster_id=data['poster_id'],
@@ -37,28 +42,28 @@ def create_posts():
 def delete_posts():
     data = request.get_json()
     if not data:
-        return jsonify({"error": "No data provided"}), 400
+        return jsonify({"error": "未提供指定数据"}), 400
     post_id = data['post_id']
     post = Post.query.get(post_id)
     if post:
         db.session.delete(post)
         db.session.commit()
-        return jsonify({'message': 'Post deleted successfully'}), 200
+        return jsonify({'message': '帖子成功删除'}), 200
     else:
-        return jsonify({'error': 'Post not found'}), 404
+        return jsonify({'error': '找不到帖子'}), 404
 
 def get_post():
     data = request.get_json()
     if not data:
-        return jsonify({"error": "No data provided"}), 400
+        return jsonify({"error": "未提供指定数据"}), 400
     required_fields = ['post_id']
     if not all(field in data for field in required_fields):
-        return jsonify({"error": "Missing required fields"}), 400
+        return jsonify({"error": "关键数据缺失"}), 400
     post = Post.query.get(data['post_id'])
     if post:
         return jsonify(post.to_dict()), 200
     else:
-        return jsonify({'error': 'Post not found'}), 404
+        return jsonify({'error': '找不到帖子'}), 404
 
 def get_posts_by_likes():
     order = request.args.get('order', 'asc')
@@ -82,11 +87,11 @@ def get_posts():
 def add_likes_num():
     data = request.get_json()
     if not data:
-        return jsonify({"error": "No data provided"}), 400
+        return jsonify({"error": "未提供指定数据"}), 400
     post_id = data['post_id']
     if not post_id:
-        return jsonify({"error": "No user_id provided"}), 400
+        return jsonify({"error": "未提供post_id"}), 400
     post = Post.query.get(post_id)
     post.likes_num += 1
     db.session.commit()
-    return jsonify({'message': 'Post liked successfully'}), 201
+    return jsonify({'message': '点赞成功'}), 201
