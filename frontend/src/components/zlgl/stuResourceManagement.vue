@@ -85,7 +85,7 @@
 				</table>
 				<div class="pagination">
 					<button @click="changePage(currentPage - 1)" :disabled="currentPage === 1">上一页</button>
-					<span>第 {{ currentPage }} 页</span>
+					<span class="pagination-info">第 {{ currentPage }} 页</span>
 					<button @click="changePage(currentPage + 1)" :disabled="currentPage >= totalPages">下一页</button>
 				</div>
 			</div>
@@ -442,6 +442,10 @@
 		/* 盒子阴影 */
 		border-radius: 5px;
 		/* 圆角 */
+
+        /* 毛玻璃效果 */
+  background-color: rgba(255, 255, 255, 0.4); /* 半透明的白色背景 */
+  backdrop-filter: blur(5px); /* 模糊效果 */
 	}
 
 	.resource-table th,
@@ -650,6 +654,13 @@
 		margin-top: 20px;
 	}
 
+  .pagination-info {
+  background-color: rgba(255, 255, 255, 0.5); /* 半透明的白色背景 */
+  backdrop-filter: blur(5px); /* 模糊效果 */
+  padding: 5px 10px; /* 添加一些内边距，让文字有空间 */
+  border-radius: 8px; /* 圆角效果 */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* 添加轻微阴影 */
+}
 	/*
 	#unique-button:hover {
 		background-color: #007bb5;

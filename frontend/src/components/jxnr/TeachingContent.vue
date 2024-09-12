@@ -55,11 +55,12 @@
     @close="closeDetail"
   />
 
-                <div class="pagination">
-                  <button @click="changePage(currentPage - 1)" :disabled="currentPage === 1">上一页</button>
-                  <span>第 {{ currentPage }} 页 / 共 {{ totalPages }} 页</span>
-                  <button @click="changePage(currentPage + 1)" :disabled="currentPage === totalPages">下一页</button>
-                </div>
+        <div class="pagination">
+          <button @click="changePage(currentPage - 1)" :disabled="currentPage === 1">上一页</button>
+          <span class="pagination-info">第 {{ currentPage }} 页 / 共 {{ totalPages }} 页</span>
+          <button @click="changePage(currentPage + 1)" :disabled="currentPage === totalPages">下一页</button>
+        </div>
+
 
 
 
@@ -102,15 +103,7 @@
   };
 },
 
-    // computed: {
-    //   totalPages() {
-    //     return Math.ceil(this.resources.length / this.itemsPerPage);
-    //   },
-    //   paginatedResources() {
-    //     const start = (this.currentPage - 1) * this.itemsPerPage;
-    //     return this.resources.slice(start, start + this.itemsPerPage);
-    //   },
-    // },
+
     computed: {
   paginatedResources() {
     // 计算当前页的开始和结束索引
@@ -149,39 +142,7 @@
       alert('已退出登录');
       this.$router.push('/');
     },
-    // searchResources() {
-    //   // 查询逻辑
-    //   alert('查询功能尚未实现');
-    // },
 
-
-    //上传文件
-  //   async uploadFile() {
-  //   // 获取用户选择的文件
-  //   const file = this.$refs.uploadFile.files[0];
-  //   if (!file) {
-  //     alert('请先选择文件');
-  //     return;
-  //   }
-  //
-  //   // 创建 FormData 对象
-  //   const formData = new FormData();
-  //   formData.append('file', file);  // 文件
-  //   formData.append('subject', this.resourceName);  // 讲义名称（假设与文件名一起上传）
-  //
-  //   try {
-  //     // 发送 POST 请求到后端
-  //     const response = await axios.post('http://127.0.0.1:5000/teacher/teaching/upload_material', formData, {
-  //       headers: {
-  //         'Content-Type': 'multipart/form-data'
-  //       }
-  //     });
-  //     alert(response.data.message);  // 提示上传结果
-  //   } catch (error) {
-  //     console.error('上传失败:', error);
-  //     alert('文件上传失败，请重试');
-  //   }
-  // },
     async uploadFile() {
   const file = this.$refs.uploadFile.files[0];
   if (!file) {
@@ -347,6 +308,8 @@ html, body {
   flex-direction: column;
   margin-left: 20px; /* 主内容与侧边栏有间距 */
   overflow: auto; /* 允许滚动 */
+
+
 }
 
 .user-controls {
@@ -408,6 +371,11 @@ html, body {
   margin-bottom: 20px; /* 表格底部间距 */
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* 盒子阴影 */
   border-radius: 5px; /* 圆角 */
+
+    /* 毛玻璃效果 */
+  background-color: rgba(255, 255, 255, 0.4); /* 半透明的白色背景 */
+  backdrop-filter: blur(5px); /* 模糊效果 */
+
 }
 
 .resource-table th,
@@ -504,4 +472,13 @@ button {
   margin-top: 20px; /* 添加顶部间距 */
   margin-top: auto;
 }
+
+.pagination-info {
+  background-color: rgba(255, 255, 255, 0.5); /* 半透明的白色背景 */
+  backdrop-filter: blur(5px); /* 模糊效果 */
+  padding: 5px 10px; /* 添加一些内边距，让文字有空间 */
+  border-radius: 8px; /* 圆角效果 */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* 添加轻微阴影 */
+}
+
 </style>
