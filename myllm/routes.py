@@ -1,19 +1,17 @@
 from flask import Blueprint, request, jsonify
 from openai import OpenAI
-from config import Config
 from langchain_chroma import Chroma
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_community.document_loaders import PyMuPDFLoader
 from langchain_community.document_loaders import UnstructuredMarkdownLoader,TextLoader,UnstructuredPDFLoader
 from langchain_huggingface.embeddings import HuggingFaceEmbeddings
+from flask_cors import CORS
+myllm = Blueprint('myllm', __name__)
+CORS(myllm, supports_credentials=True)  # 启用CORS，允许跨域请求
 
-llm=Blueprint('llm',__name__)
-
-client = OpenAI(api_key=Config.API_KEY, base_url="https://api.deepseek.com")
+client = OpenAI(api_key="sk-8af8506cfd8b4da7b31e1a3d8035c7ed", base_url="https://api.deepseek.com")
 quiz_template = """
-请根据以下文本，生成1道单项选择题，以及对应的答案与解析,并将生成的问题，选项，答案，解释，按照JSON格式输出。
-文本如下：
-{text}
+请根据给定的话题，生成1道单项选择题，以及对应的答案与解析,并将生成的问题，选项，答案，解释，按照JSON格式输出。
 输出结果的要求:
 问题应简明扼要，明确以文本信息为基础；
 试着生成一个可以由整个文本而不是单个句子回答的问题；
@@ -24,18 +22,17 @@ quiz_template = """
 在答案选择中，避免使用 “以上皆是 ”和 “以上皆非”；
 所有理由应以 “正确 ”或 “不正确 ”开头；
 所有答案选项（包括正确答案和干扰项）都必须有自己的理由说明；
-每个选项的理由说明都应该由;结尾。
 输出示例：
 EXAMPLE JSON OUTPUT:
 {
     "question": "世界上最长的河流是哪一条河流？",
     "option":"A.长江 B.珠穆朗玛峰 C.尼罗河 D.密西西比河",
-    "answer": "C"，
+    "answer": "C",
     "rationale":"A:不正确，长江是世界第三长河，中国第一长河，不是世界最长的河流; B:不正确，珠穆朗玛峰是一座山峰，而不是一条河流;C:正确，尼罗河是世界最长的河流;D:不正确，密西西比河是世界第四长河，不是世界最长的河流"
 }
 """
 
-@llm.route('/generate_vectordb', methods=['GET', 'POST'])
+@myllm.route('/generate_vectordb', methods=['GET', 'POST'])
 def generate_vectordb():
     #有待完善
     if request.method == 'POST':
@@ -63,7 +60,7 @@ def generate_vectordb():
                                          persist_directory=persistent_directory)
         return jsonify({"message":"Successfully generated vector database"}),201
 
-@llm.route('/generate_quizzes',methods=['GET', 'POST'])
+@myllm.route('/generate_quizzes',methods=['GET', 'POST'])
 def generate_quizzes():
     #有待完善
     if request.method == 'POST':
@@ -79,39 +76,34 @@ def generate_quizzes():
         client.chat.with_raw_response.completions.create(prompt=prompt)
 
 
-@llm.route('/ai_answer', methods=['GET','POST'])
+@myllm.route('/ai_answer', methods=['GET','POST'])
 def ai_answer():
     if request.method == 'POST':
         input=request.json['input']
         response = client.chat.completions.create(
             model="deepseek-chat",
             messages=[
-                {"role": "system", "content": "You are a helpful assistant"},
+                {"role": "system", "content": "You are a helpful teaching assistant and your duty is to answer students' questions"},
                 {"role": "user", "content": input},
             ],
             max_tokens=2048,
-            temperature=1.0,
+            temperature=2.0,
             stream=False
         )
         return response.choices[0].message.content
 
-@llm.route('/ai_quiz', methods=['GET','POST'])
+@myllm.route('/ai_quiz', methods=['GET','POST'])
 def ai_quiz():
     if request.method == 'POST':
         input=request.json['input']
         response = client.chat.completions.create(
             model="deepseek-chat",
             messages=[
-                {"role": "system", "content": f"You are a helpful teaching assistant and your duty is to generate several quizzes{quiz_template}"},
+                {"role": "system", "content": f"You are a helpful teaching assistant and your duty is to generate a quiz{quiz_template}"},
                 {"role": "user", "content": f"Here are the theme of the quizzes you should generate:{input}"},
             ],
             max_tokens=2048,
-            temperature=0.7,
+            temperature=2.0,
             stream=False
         )
         return response.choices[0].message.content
-
-
-@llm.route('/review')
-def review():
-    pass

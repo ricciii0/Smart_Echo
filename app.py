@@ -6,18 +6,17 @@ from models.user import User
 from auth.routes import auth
 from teacher.onlineExercise import oe_bp
 from teacher.resourceManage import rm_bp
-
+from myllm.routes import myllm
 app = Flask(__name__)
 
 app.config.from_object('config.Config')  # 确保您的配置文件正确
 CORS(app, supports_credentials=True)
 
-
 # 注册蓝图
 app.register_blueprint(auth, url_prefix='/auth')
+app.register_blueprint(myllm, url_prefix='/myllm')
 app.register_blueprint(rm_bp)
 app.register_blueprint(oe_bp)
-
 # 导入并注册 teacher 蓝图（含有子蓝图）
 from teacher import teacher  # 导入 teacher 蓝图
 app.register_blueprint(teacher, url_prefix='/teacher')  # 注册 teacher 蓝图
