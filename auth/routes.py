@@ -19,11 +19,37 @@ auth=Blueprint('auth', __name__)
 
 CORS(auth, supports_credentials=True)  # 启用CORS，允许跨域请求
 
+# @auth.route('/login/', methods=['POST','GET'])
+# def login():
+#     if request.method == "POST":
+#         data = request.get_json()
+#         print(data)
+#         if not data:
+#             return jsonify({'error':'Invalid data'}), 400
+#         user_id = data['user_id']
+#         password = data['password']
+#         user=User.query.filter_by(user_id=user_id).first()
+#         if user and user.check_password(password):
+#             login_user(user)
+#             user_type=" "
+#             if user_id.startswith('1'):
+#                 user_type='teacher'
+#             if user_id.startswith('2'):
+#                 user_type='student'
+#             return jsonify({
+#                 'message':'login successfully',
+#                 'user_type':user_type,
+#                 'success':True
+#             }),201
+#         else:
+#             return jsonify({'error':'Invalid user id or password'}), 401
+#     else:
+#         return jsonify({'error':'Method not allowed'}), 405
+
 @auth.route('/login/', methods=['POST','GET'])
 def login():
     if request.method == "POST":
         data = request.get_json()
-        print(data)
         if not data:
             return jsonify({'error':'Invalid data'}), 400
         user_id = data['user_id']
@@ -31,16 +57,12 @@ def login():
         user=User.query.filter_by(user_id=user_id).first()
         if user and user.check_password(password):
             login_user(user)
-            user_type=" "
-            if user_id.startswith('1'):
-                user_type='teacher'
-            if user_id.startswith('2'):
-                user_type='student'
+            user_type = 'teacher' if user_id.startswith('1') else 'student' if user_id.startswith('2') else None
             return jsonify({
                 'message':'login successfully',
-                'user_type':user_type,
+                'user_type': user_type,  # 返回用户类型
                 'success':True
-            }),201
+            }), 201
         else:
             return jsonify({'error':'Invalid user id or password'}), 401
     else:
@@ -210,3 +232,64 @@ def send_email(receiver_name,receiver_email,content,sender_name="Smart Echo", se
         print("邮件发送成功")
     except Exception as e:
         print(f"邮件发送失败，错误信息：{str(e)}")
+
+#新增代码：
+@auth.route('/resources/', methods=['GET'])
+def get_resource_detail():
+    # 获取当前登录用户的资源信息
+    user = current_user  # 通过 current_user 获取当前登录的用户
+    if not user:
+        return jsonify({'error': 'User not found'}), 404
+
+    # 假设 User 模型中有一个资源字段
+    resource_data = {
+        'id': user.id,
+        'name': user.name,  # 用户名或者资源名称
+        'description': user.email  # 假设使用邮箱模拟资源描述
+    }
+
+    return jsonify(resource_data), 200
+
+@auth.route('/user-info/', methods=['GET'])
+def get_user_info():
+    user = current_user  # 当前登录用户的实例
+
+    if not user:
+        return jsonify({'error': 'User not found'}), 404
+
+    user_info = {
+        'username': user.name,  # 假设User模型中有name字段表示用户名
+        'email': user.email,  # 假设User模型中有email字段
+        'user_type': user.user_type  # 用户类型
+    }
+
+    return jsonify(user_info), 200
+
+
+@auth.route('/classes/', methods=['GET'])
+def get_class_list():
+    # 假设班级信息存储在User模型中的class_id字段，返回当前用户的班级信息
+    user = current_user  # 获取当前登录用户
+
+    if not user:
+        return jsonify({'error': 'User not found'}), 404
+
+    class_info = {
+        'id': user.id,
+        'class_name': user.class_id  # 假设class_id是班级名称或ID
+    }
+
+    return jsonify([class_info]), 200  # 返回当前用户的班级信息
+
+@auth.route('/sidebar-links', methods=['GET'])
+def get_sidebar_links():
+    role = request.args.get('role')  # 从请求参数中获取用户角色
+    if role == 'student':
+        links = ['student_link1', 'student_link2']
+    elif role == 'teacher':
+        links = ['teacher_link1', 'teacher_link2']
+    else:
+        links = ['default_link']
+
+    return jsonify({'links': links}), 200
+

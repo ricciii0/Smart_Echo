@@ -15,13 +15,15 @@
         <div class="link">
           <router-link to="/register">没有账号？点击注册</router-link>
         </div>
-		</form>
+      </form>
     </div>
   </div>
 </template>
 
 <script>
 import axios from "axios";
+import { mapActions } from "vuex"; // 引入 Vuex 的 mapActions
+
 export default {
   data() {
     return {
@@ -31,11 +33,9 @@ export default {
     };
   },
   methods: {
-         async handleSubmit() {
-      console.log('账号:', this.username);
-      console.log('密码:', this.password);
-      console.log('记住密码:', this.remember);
+    ...mapActions(['login']),  // 映射 Vuex 的 login action
 
+    async handleSubmit() {
       try {
         // 发送POST请求到后端
         const response = await axios.post('http://127.0.0.1:5000/auth/login/', {
@@ -46,8 +46,13 @@ export default {
 
         // 根据后端响应处理登录结果
         if (response.data.success) {
-          alert('登录成功');
-          this.$router.push('/main'); // 登录成功后跳转到主页面
+          // 调用 Vuex 的 login action，并传递用户类型
+          await this.login({
+            user_type: response.data.user_type,
+          });
+
+          // 登录成功后跳转到主页面
+          this.$router.push('/main');
         } else {
           alert('登录失败，请检查用户名和密码');
         }
@@ -56,9 +61,10 @@ export default {
         alert('登录请求失败，请稍后再试');
       }
     },
-	    },
-	  };
+  },
+};
 </script>
+
 
 <style scoped>
 /* 全局样式 */

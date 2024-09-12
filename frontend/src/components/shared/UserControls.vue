@@ -1,7 +1,7 @@
 <template>
   <header class="header">
     <div class="user-controls">
-      <span v-if="usertype === 'teacher'">
+      <span>
         <select v-model="selectedClass">
           <option v-for="classItem in classList" :key="classItem">{{ classItem }}</option>
         </select>
@@ -22,29 +22,24 @@ export default {
       username: '张三', // 示例用户名
       selectedClass: '',
       classList: [], // 用于存储班级列表
-      usertype: '', // 用户类型 (teacher, student, etc.)
     };
   },
   async mounted() {
     await this.fetchUserInfo(); // 获取用户信息
-    if (this.usertype === 'teacher') {
-      await this.fetchClassList(); // 如果是教师，获取班级列表
-    }
     await this.fetchClassList(); // 获取班级列表
   },
   methods: {
       async fetchUserInfo() {
       try {
-        const response = await axios.get('/api/user-info'); // 替换为实际的 API 路径
+        const response = await axios.get('http://127.0.0.1:5000/auth/user-info/'); // 替换为实际的 API 路径
         this.username = response.data.username; // 假设返回的数据包含用户名
-        this.usertype = response.data.usertype; // 假设返回的数据包含用户类型
       } catch (error) {
         console.error('获取用户信息失败:', error);
       }
     },
     async fetchClassList() {
       try {
-        const response = await axios.get('/api/classes'); // 替换为实际的 API 路径
+        const response = await axios.get('http://127.0.0.1:5000/auth/classes/'); // 替换为实际的 API 路径
         this.classList = response.data; // 假设返回的数据是班级数组
         if (this.classList.length > 0) {
           this.selectedClass = this.classList[0]; // 默认选择第一个班级
@@ -55,7 +50,7 @@ export default {
     },
     async logout() {
       try {
-        await axios.post('/api/logout'); // 替换为实际的 API 路径
+        await axios.post('http://127.0.0.1:5000/auth/logout/'); // 替换为实际的 API 路径
         this.$router.push('/'); // 成功登出后跳转到首页
       } catch (error) {
         console.error('登出请求失败:', error);

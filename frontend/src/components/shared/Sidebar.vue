@@ -1,73 +1,47 @@
 <template>
-	<div class="sidebar">
-	  <h2>智慧教学系统</h2>
-	  <ul>
+  <div class="sidebar">
+    <h2>智慧教学系统</h2>
+    <ul>
       <li v-for="item in sidebarLinks" :key="item.name">
         <router-link :to="item.link" exact-active-class="active-link">{{ item.name }}</router-link>
       </li>
-	  </ul>
-	  <button @click="toggleRole">切换角色</button>
-	</div>
+    </ul>
+  </div>
 </template>
 
 <script>
-import axios from 'axios';
-	export default {
-	  name: 'Sidebar',
-	  data()
-	  {
-		  return{
-			  userIdType: 'student', // 或 'teacher'，可以通过登录状态动态设置
-          sidebarLinks: [],
-		  };
-	  },
-    async created() {
-    await this.updateSidebarLinks();
-  },
-	  computed: {
-    userIdType() {
-      return this.$store.state.userIdType;
-    },
+import { mapState } from 'vuex';
 
-	      sidebarLinks() {
-	        if (this.userIdType === 'student') {
-	          return [
-	            { name: '首页', link: '/main' },
-	            { name: '资料管理', link: '/stu-resource-management' },
-	            { name: '在线练习', link: '/stu-online-exercise' },
-				{ name: '智能答疑', link: '/smart-machine' },
-				 { name: '社区交流', link: '/social-interaction' },
-	          ];
-	        } else if (this.userIdType === 'teacher') {
-	          return [
-	            { name: '首页', link: '/main' },
-	            { name: '教学内容', link: '/teaching-content' },
-	            { name: '资料管理', link: '/resource-management' },
-				 { name: '在线练习', link: '/online-exercise' },
-	            { name: '智能批改', link: '/tea-smart-machine' },
-	            { name: '社区交流', link: '/tea-social-interaction' },
-	          ];
-	        }
-	        return [];},},
-    watch: {
-    userIdType: 'updateSidebarLinks', // 监控 userIdType 的变化
-  },
-methods: {
-     async updateSidebarLinks() {
-      try {
-        const response = await axios.get(`/api/sidebar-links?role=${this.userIdType}`);
-        this.sidebarLinks = response.data;
-      } catch (error) {
-        console.error('获取侧边栏链接失败:', error);
+export default {
+  name: 'Sidebar',
+  computed: {
+    ...mapState(['userIdType']),  // 从 Vuex 的状态中获取用户角色类型
+
+    sidebarLinks() {
+      if (this.userIdType === 'student') {
+        return [
+          { name: '首页', link: '/main' },
+          { name: '资料管理', link: '/stu-resource-management' },
+          { name: '在线练习', link: '/stu-online-exercise' },
+          { name: '智能答疑', link: '/smart-machine' },
+          { name: '社区交流', link: '/social-interaction' },
+        ];
+      } else if (this.userIdType === 'teacher') {
+        return [
+          { name: '首页', link: '/main' },
+          { name: '教学内容', link: '/teaching-content' },
+          { name: '资料管理', link: '/resource-management' },
+          { name: '在线练习', link: '/online-exercise' },
+          { name: '智能批改', link: '/tea-smart-machine' },
+          { name: '社区交流', link: '/tea-social-interaction' },
+        ];
       }
-    },
-    toggleRole() {
-      this.userIdType = this.userIdType === 'student' ? 'teacher' : 'student';
-      this.$store.commit('setUserIdType', this.userIdType); // 更新 Vuex 中的角色类型
+      return [];
     },
   },
 };
 </script>
+
 
 <style>
 .sidebar {
