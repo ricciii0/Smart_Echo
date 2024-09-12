@@ -188,7 +188,8 @@
 					} catch (error) {
 						alert('文件上传失败:', error);
 					}
-					this.$router.go(0);
+					this.getExercise();
+					this.getRecord();
 				}
 			},
 			getExercise() {

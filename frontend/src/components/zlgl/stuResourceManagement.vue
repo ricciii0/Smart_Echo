@@ -196,7 +196,7 @@
 				// this.selectedSubject = '全部';
 				// this.selectedUploadTime = '全部';
 				// this.$refs.uploadFile.value = ''; // 清空文件选择
-				this.$router.go(0);
+				this.getData();
 			},
 			uploadFile() {
 				// 通过 this.$refs 访问文件输入框
@@ -208,7 +208,7 @@
 					formData.append('file', file);
 					formData.append('subject', this.theSubject);
 
-					let teaid = 0;
+					let teaid = 2;
 					// teaid为当前登录的用户的id
 					formData.append('teaid', teaid);
 					// 使用 axios 进行上传
@@ -259,7 +259,7 @@
 					});
 			},
 			getData() {
-				let teaid = 0;
+				let teaid = 2;
 				axios.get('http://127.0.0.1:5000/rm/print/', {
 						params: {
 							teaid: teaid
