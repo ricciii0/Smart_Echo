@@ -1,10 +1,12 @@
-from flask import Blueprint, jsonify, request, Response
+import io
+
+from flask import Blueprint, jsonify, request, Response, send_file
 
 rm_bp=Blueprint('rm_bp',__name__,url_prefix='/rm')
-from teacher.resourceManage.resourceManage import getsqlResource, storefile, deletefile, getfile
-
+from teacher.resourceManage.resourceManage import getsqlResource, storefile, deletefile, getfile, getfilename
 from flask_cors import CORS  # 导入CORS库
 CORS(rm_bp, supports_credentials=True)  # 启用CORS，允许跨域请求
+
 @rm_bp.route('/print/')
 def homeprint():
     aimid = request.args.get('teaid')
@@ -71,3 +73,16 @@ def download():
         )
     else:
         return "eaewaeResource not found", 404
+
+@rm_bp.route('/preview_material/<int:file_id>', methods=['GET'])
+def preview_material(file_id):
+    file_content = getfile(file_id)
+    file_name=getfilename(file_id)
+    if not file_content:
+        return jsonify({"message": "Material not found"}), 404
+    return send_file(
+        io.BytesIO(file_content),
+        download_name=file_name,
+        as_attachment=False
+    )
+

@@ -13,7 +13,8 @@
 						<option value="defaults">科目</option>
 						<option value="计算机">计算机</option>
 						<option value="数学">数学</option>
-						<option value="DefaultFolder">测试</option>
+						<option value="语文">语文</option>
+						<option value="英语">英语</option>
 					</select>
 					<input type="text" v-model="Timetxt" placeholder="时间" />
 
@@ -50,8 +51,7 @@
 						<option value="语文">语文</option>
 						<option value="数学">数学</option>
 						<option value="英语">英语</option>
-						<option value="计算机组成原理">计算机组成原理</option>
-						<option value="DefaultFolder">测试</option>
+						<option value="计算机">计算机</option>
 					</select>
 					<button @click="uploadFile">上传</button>
 				</div>
@@ -157,9 +157,21 @@
 					// 将不同的时间格式全都转换成一种格式就可以实现查询
 					const startDate = new Date(this.startTime);
 					const endDate = new Date(this.endTime);
+					// console.log(startDate)
+					// console.log(endDate)
 					for (let i = 0; i < this.resources.length; i++) {
 						const uploadDate = new Date(this.resources[i].uploadTime);
-						if (uploadDate < startDate || uploadDate > endDate) {
+						// 将16小时转换为毫秒
+						const hoursToAdd = 8;
+						const millisecondsToAdd = hoursToAdd * 60 * 60 * 1000;
+
+						// 计算新的时间戳
+						const newTimestamp = uploadDate.getTime() - millisecondsToAdd;
+						const newDate = new Date(newTimestamp);
+						// console.log(this.resources[i].uploadTime)
+						// console.log(newDate)
+
+						if (newDate < startDate || newDate > endDate) {
 							//从i开始删除一个元素
 							this.resources.splice(i, 1);
 							i--;
@@ -221,8 +233,8 @@
 
 			},
 			viewResource(resource) {
-				// 查看资源逻辑
-				alert(`查看: ${resource.name}`);
+				// 打开新窗口预览文件
+				window.open(`http://127.0.0.1:5000/rm/preview_material/${resource.id}`, '_blank');
 			},
 			downloadResource(resource) {
 				axios({
@@ -247,7 +259,7 @@
 					});
 			},
 			getData() {
-				let teaid = 0 ;
+				let teaid = 0;
 				axios.get('http://127.0.0.1:5000/rm/print/', {
 						params: {
 							teaid: teaid

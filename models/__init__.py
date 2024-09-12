@@ -7,3 +7,4 @@ from .favorite import Favorite
 from .reply import Reply
 from .post import Post
 from .question import Question
+from .answerFile import AnswerFile

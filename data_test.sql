@@ -30,7 +30,10 @@ CREATE TABLE submissions (
     title VARCHAR(25) NOT NULL,
     createtime DATETIME DEFAULT CURRENT_TIMESTAMP,
     exercisecontent LONGBLOB NOT NULL,
+    exercisename VARCHAR(25) NOT NULL,
+
     answer LONGBLOB DEFAULT NULL,
+    answername VARCHAR(25) DEFAULT NULL,
 
     grade VARCHAR(25) DEFAULT NULL,
     feedback VARCHAR(25) DEFAULT NULL,

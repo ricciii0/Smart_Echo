@@ -60,6 +60,18 @@ def getfile(id):
     finally:
         connection.close()
 
+def getfilename(id):
+    connection = getconnection()
+    try:
+        with connection.cursor() as cursor:
+            sql = "SELECT filename FROM files WHERE id=%s"
+            # (filename)会被当成单个元素的参数(filename,)是只含有一个元素的元组
+            cursor.execute(sql,(id,))
+            # fetchall是提取所有数据，fetchone是提取一行数据
+            results = cursor.fetchone()
+            return results['filename']
+    finally:
+        connection.close()
 
 # 通过关键词查询文件
 def seekfile(keyword):

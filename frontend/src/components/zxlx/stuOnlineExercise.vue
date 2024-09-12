@@ -222,7 +222,7 @@
 						const url = window.URL.createObjectURL(new Blob([response.data]));
 						const a = document.createElement('a');
 						a.href = url;
-						a.download = exercise.title;
+						a.download = exercise.exercisename;
 						document.body.appendChild(a);
 						a.click();
 						document.body.removeChild(a);
@@ -244,8 +244,9 @@
 					alert('题目已添加到练习');
 				}
 			},
-			viewSubmission() {
-				this.selectedRecord = this.historyRecords.find(record => record.id === this.selectedSubmission);
+			viewSubmission(record) {
+				// 打开新窗口预览文件
+				window.open(`http://127.0.0.1:5000/oe/preview_material_stu/${record.id}`, '_blank');
 			},
 			submitFeedback() {
 				if (this.selectedRecord) {

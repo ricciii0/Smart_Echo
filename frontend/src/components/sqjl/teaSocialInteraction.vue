@@ -29,19 +29,21 @@
 
     <div class="question-detail">
       <h3>问题内容</h3>
-      <p v-if="selectedQuestion">{{ selectedQuestion.content }}</p>
+      <br>
+      <p v-if="selectedQuestion">{{ selectedQuestion.question }}</p>
       <p v-else>请在左侧选择一个问题</p>
     </div>
 
     <div class="teacher-response">
       <textarea v-model="replyContent" placeholder="输入您的回复..."></textarea>
-      <input type="file" @change="handleFileUpload"/>
+      <input type="file"  @change="handleFileUpload"/>
       <button @click="submitReply">提交</button>
     </div>
   </div>
         <!-- 帖子区 -->
         <div class="post-area">
           <h3>讨论区</h3>
+          <br>
           <!-- 收藏夹按钮 -->
           <button @click="toggleFavorites">收藏夹</button>
           <!-- 发表帖子按钮，点击弹出发表帖子表单 -->
@@ -53,7 +55,7 @@
               <span>{{ post.poster_id }}</span>
               <span>{{ post.post_time }}</span>
               <!-- 收藏按钮，添加/取消收藏 -->
-              <button @click="toggleFavorite(post.post_id, post.is_favorite)">{{post.is_favorite?'取消收藏':'收藏'}}</button>
+              <button @click="toggleFavorite(post.post_id)">{{post.is_favorite?'取消收藏':'收藏'}}</button>
             </div>
             <!-- 帖子内容 -->
              <div class="post-title">{{ post.title }}</div>
@@ -71,7 +73,8 @@
             <!-- 评论区，显示所有评论 -->
             <div v-if="post.showComments" class="comment-section">
               <div v-for="comment in post.comments" :key="comment.reply_id" class="comment-item">
-                {{ comment.content }}
+                 <div class="comment-content">{{ comment.content }}</div>
+                <div class="comment-footer">{{comment.publisher_id}}    {{comment.reply_time}}</div>
               </div>
             </div>
           </div>
@@ -90,7 +93,7 @@
               </div>
             </div>
             <!-- 没有收藏时显示的提示信息 -->
-            <p v-else>404 not found</p>
+            <p v-else>收藏夹为空</p>
           </div>
         </div>
 
@@ -103,19 +106,19 @@
              <br>
             <form @submit.prevent="submitPost">
               <div class="form-group">
-                <label for="post-title">标题</label>
-                <textarea v-model="newPostTitle" id="post-title" rows="1" placeholder="请输入帖子标题"></textarea>
+                <label for="post-title">标题:</label>
+                <textarea v-model="newPostTitle" class="post-add" rows="1" placeholder="请输入帖子标题"></textarea>
                 <label for="post-content">内容:</label>
-                <textarea v-model="newPostContent" id="post-content" rows="5" placeholder="请输入帖子内容"></textarea>
+                <textarea v-model="newPostContent" class="post-content" rows="5" placeholder="请输入帖子内容"></textarea>
               </div>
               <!--<div class="form-group">
-                <label for="file-upload">上传文件:</label>
+                <label for="file-upload">上传文件: </label>
                 <input type="file" id="file-upload" @change="handleFileUpload" />
               </div> -->
 
               <!-- 提交按钮 -->
                <br>
-              <button type="submit">提交</button>
+              <button type="submit" id="favorite-submit">提交</button>
             </form>
           </div>
         </div>
@@ -179,7 +182,7 @@ export default {
     handleFileUpload(event) {
       this.selectedFile = event.target.files[0];
     },
-    submitReply() {
+    async submitReply() {
       if (this.selectedQuestionIndex === null) {
         alert('请先选择题目');
         return;
@@ -188,18 +191,39 @@ export default {
         alert('回答内容不能为空');
         return;
       }
-      axios.post('http://127.0.0.1:5000/teacher/community/answer_questions', {
-          'question_id': this.questions[this.selectedQuestionIndex].question_id,
+      const question_id = this.questions[this.selectedQuestionIndex].question_id;
+      try{
+        const response = await axios.post('http://127.0.0.1:5000/teacher/community/answer_questions', {
+          'question_id': question_id,
           'answer': this.replyContent,
           'teacher_id': this.userid,
-        })
-        .then(response =>{
-          console.log(response);
-        })
-        .catch(error =>{
-          console.log(error);
-        })
-      console.log('上传的文件:', this.selectedFile);
+        });
+        alert(response.data.message);
+
+      }catch(error){
+        console.log(error);
+        alert('回复失败');
+      }
+      if(this.selectedFile){
+        const formData = new FormData();
+        formData.append('file', this.selectedFile);
+        formData.append('user_id', this.userid);
+        formData.append('question_id', question_id);
+
+        try {
+          const response = await axios.post('http://127.0.0.1:5000/teacher/community/upload_answer_file',
+              formData, {
+            headers: {
+              'Content-Type': 'multipart/form-data'
+            }
+          });
+          alert(response.data.message);
+
+        } catch (error) {
+          console.error('上传失败:', error);
+          alert('文件上传失败，请重试');
+        }
+      }
       this.replyContent = '';
       this.selectedFile = null;
     },
@@ -233,7 +257,7 @@ export default {
     })
       .then(response =>{
         const post = this.posts.find(p => p.post_id === postId);
-        post.is_favorite = response.data;
+        post.is_favorite = response.data.is_favorite;
       })
       .catch(error =>{
         console.log(error);
@@ -334,7 +358,6 @@ export default {
       })
         .then(response=>{
           const post = this.posts.find(p => p.post_id === postId);
-          post.comments = [];
           post.comments.push(response.data);
           post.replies_num ++;
         })
@@ -360,6 +383,7 @@ export default {
         .then(response =>{
           response.data.is_favorite = false;
           response.data.is_like = false;
+          response.data.comments = [];
           this.posts.push(response.data);
         })
         .catch(error =>{
@@ -368,7 +392,6 @@ export default {
 
         this.newPostContent = '';
         this.newPostTitle = '';
-        //this.uploadedFile = null;
         this.togglePostModal(); // 关闭发表帖子弹窗
       } else {
         alert('标题与内容不能为空！');
@@ -518,7 +541,8 @@ button:hover {
   background: white;
   padding: 20px;
   border-radius: 5px;
-  width: 300px;
+  width: 600px;
+  height: auto;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
   position: relative;
 }
@@ -546,8 +570,8 @@ button:hover {
 
 .post {
 
-	 max-height: 100px; /* 固定最大高度 */
-	  overflow-y: auto; /* 启用垂直滚动 */
+  max-height: 200px; /* 固定最大高度 */
+  overflow-y: auto; /* 启用垂直滚动 */
   padding: 10px;
   margin-bottom: 10px;
   border-radius: 5px;
@@ -557,15 +581,35 @@ button:hover {
 .post-header {
   display: flex;
   justify-content: space-between;
-  margin-bottom: 10px;
+  margin-bottom: 4px;
+  font-size: 8px;
+}
+
+.post-title {
+    font-size: 12px; /* 字体大小 */
+    font-weight: bold; /* 字体加粗 */
+    color: #333; /* 字体颜色 */
+    margin-bottom: 6px; /* 与内容的间距 */
+    text-align: center;
+}
+
+/* 帖子内容样式 */
+.post-content {
+    font-size: 10px; /* 字体大小 */
+  font-weight: bold;
+    line-height: 1.6; /* 行高 */
+    color: #666; /* 字体颜色 */
+    margin-bottom: 20px; /* 与底部的间距 */
 }
 
 .post-footer {
   display: flex;
   justify-content: space-between;
+  font-size: 10px;
 }
 .post-area {
   background: rgba(255, 255, 255, 0.8);
+  height: auto;
   padding: 30px;
   margin-top: 30px;
   border-radius: 5px;
@@ -667,5 +711,20 @@ textarea {
   border-radius: 5px;
   background-color: #f9f9f9;
 }
+
+.comment-content{
+  font-size: 10px;
+}
+.comment-footer{
+  display: flex;
+  justify-content: right;
+  font-size: 5px;
+}
+
+.favorite-submit{
+  display: flex;
+  justify-content: center;
+}
+
 
 </style>
