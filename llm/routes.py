@@ -89,7 +89,23 @@ def ai_answer():
                 {"role": "system", "content": "You are a helpful assistant"},
                 {"role": "user", "content": input},
             ],
-            max_tokens=1024,
+            max_tokens=2048,
+            temperature=1.0,
+            stream=False
+        )
+        return response.choices[0].message.content
+
+@llm.route('/ai_quiz', methods=['GET','POST'])
+def ai_quiz():
+    if request.method == 'POST':
+        input=request.json['input']
+        response = client.chat.completions.create(
+            model="deepseek-chat",
+            messages=[
+                {"role": "system", "content": f"You are a helpful teaching assistant and your duty is to generate several quizzes{quiz_template}"},
+                {"role": "user", "content": f"Here are the theme of the quizzes you should generate:{input}"},
+            ],
+            max_tokens=2048,
             temperature=0.7,
             stream=False
         )
