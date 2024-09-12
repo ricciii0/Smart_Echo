@@ -26,9 +26,9 @@ student_id=3
 
 def getconnection():
     connection = pymysql.connect(host='localhost',
-                                 user='root',
-                                 password='ysy200422',
-                                 db='teaching_db',
+                                 user='用户名',
+                                 password='密码',
+                                 db='数据库名',
                                  cursorclass=pymysql.cursors.DictCursor)
     return connection
 
