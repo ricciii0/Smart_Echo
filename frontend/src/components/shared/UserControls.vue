@@ -1,12 +1,7 @@
 <template>
   <header class="header">
     <div class="user-controls">
-      <span>
-        <select v-model="selectedClass">
-          <option v-for="classItem in classList" :key="classItem">{{ classItem }}</option>
-        </select>
-      </span>
-      <span class="welcome-message">欢迎您，{{ username }}</span>
+      <span class="welcome-message">Smart_Echo欢迎您</span>
       <button @click="logout">退出登录</button>
     </div>
   </header>

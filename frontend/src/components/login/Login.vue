@@ -1,7 +1,7 @@
 <template>
   <div class="login-page">
     <div class="container">
-      <img src="../../img/seu_logo.png" alt="Southeast University Logo" class="logo" />
+      <img src="../../../public/img/seu_logo.png" alt="Southeast University Logo" class="logo" />
       <h1>智慧教学系统</h1>
       <form @submit.prevent="handleSubmit">
         <input type="text" v-model="username" placeholder="请输入账号" required />
@@ -82,7 +82,7 @@ html, body {
 
 .login-page {
   height: 100vh; /* 视口高度 */
-  background: url('../../img/background.png') no-repeat center center fixed; /* 背景图 */
+  background: url('../../../public/img/background.png') no-repeat center center fixed; /* 背景图 */
   background-size: cover; /* 背景图覆盖 */
   display: flex; /* 使用 flexbox 居中 */
   justify-content: center; /* 水平居中 */

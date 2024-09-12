@@ -32,7 +32,6 @@ export default {
           { name: '教学内容', link: '/teaching-content' },
           { name: '资料管理', link: '/resource-management' },
           { name: '在线练习', link: '/online-exercise' },
-          { name: '智能批改', link: '/tea-smart-machine' },
           { name: '社区交流', link: '/tea-social-interaction' },
         ];
       }

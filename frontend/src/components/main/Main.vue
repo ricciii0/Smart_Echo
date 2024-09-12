@@ -55,12 +55,16 @@
           "公告4：新课程即将上线，敬请期待！",
         ],
         photos: [
-          { src: '../../img/photo3.jpg', alt: '照片1' },
-          { src: '../../img/photo4.jpg', alt: '照片2' },
-          { src: '../../img/photo3.jpg', alt: '照片3' },
-          { src: '../../img/photo4.jpg', alt: '照片4' },
-          { src: '../../img/photo5.jpg', alt: '照片5' },
-        ],
+          { src: '/img/1.jpg', alt: '照片1' }, // 使用绝对路径引用 public 文件夹中的图片
+          { src: '/img/2.jpg', alt: '照片2' },
+          { src: '/img/3.jpg', alt: '照片3' },
+          { src: '/img/4.jpg', alt: '照片4' },
+          { src: '/img/5.jpg', alt: '照片5' },
+          { src: '/img/6.jpg', alt: '照片6' },
+          { src: '/img/7.jpg', alt: '照片7' },
+          { src: '/img/8.jpg', alt: '照片8' },
+          { src: '/img/9.jpg', alt: '照片9' },
+            ],
       };
     },
     computed: {
@@ -94,7 +98,7 @@ html, body {
 
 .main-container {
   display: flex;
-  background-image: url('../../img/background.png');
+  background-image: url('../../../public/img/background.png');
   background-size: cover; /* 使图片覆盖整个容器 */
   background-position: center; /* 图片居中 */
   background-repeat: no-repeat; /* 不重复背景图片 */

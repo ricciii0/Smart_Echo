@@ -207,7 +207,7 @@ import Chart from 'chart.js/auto';
   ========================= */
   .main-container {
     display: flex;
-    background-image: url('../../img/background.png');
+    background-image: url('../../../public/img/background.png');
     background-size: cover; /* 使图片覆盖整个容器 */
     background-position: center; /* 图片居中 */
     background-repeat: no-repeat; /* 不重复背景图片 */

@@ -417,7 +417,7 @@ html, body {
 
 .main-container {
   display: flex;
-  background-image: url('../../img/background.png');
+  background-image: url('../../../public/img/background.png');
   background-size: cover;
   background-position: center;
   height: 100vh;

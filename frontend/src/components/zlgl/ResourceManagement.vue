@@ -342,7 +342,7 @@
 ========================= */
 	.main-container {
 		display: flex;
-		background-image: url('../../img/background.png');
+		background-image: url('../../../public/img/background.png');
 		background-size: cover;
 		/* 使图片覆盖整个容器 */
 		background-position: center;

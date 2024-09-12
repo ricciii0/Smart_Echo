@@ -44,30 +44,11 @@
               </div>
             </div>
 <div class="input-container">
-<div class="mode-selection">
-          <label>选择输入模式：</label>
-          <select v-model="selectedMode" @change="resetInputs">
-            <option value="code">代码</option>
-            <option value="file">文件</option>
-            <option value="text">文字</option>
-          </select>
-        </div>
 
-        <!-- 根据选择显示不同的输入区域 -->
-        <div v-if="selectedMode === 'code'">
-          <textarea v-model="codeInput" placeholder="输入代码..." rows="5" cols="100"></textarea>
-          <button @click="debugCode">自动调试代码</button>
-        </div>
 
-        <div v-if="selectedMode === 'file'">
-          <input type="file" @change="handleFileUpload" />
-          <pre>{{ fileContent }}</pre>
-          <button @click="debugFile">调试文件内容</button>
-        </div>
-
-        <div v-if="selectedMode === 'text'">
+        <div>
           <textarea v-model="textInput" placeholder="输入文本..." rows="3" cols="100"></textarea>
-          <button @click="sendText">发送文本</button></div>
+          <button @click="sendMessage">发送文本</button></div>
         </div>
           </div>
         </div>
@@ -113,27 +94,32 @@
     viewContent(content) {
       alert(`查看内容: ${content}`);
     },
-    async sendMessage() {
-      if (!this.userMessage) return;
+  async sendMessage() {
+      if (!this.textInput) return;  // 使用 textInput 而不是 userMessage
 
       // 添加用户消息到对话框
-      this.messages.push({ text: this.userMessage, type: 'user' });
+      this.messages.push({ text: this.textInput, type: 'user' });
 
       // 调用后端API
       try {
-        const response = await axios.post('YOUR_BACKEND_API_URL', {
-          question: this.userMessage,
+        const response = await axios.post('http://127.0.0.1:5000/myllm/ai_answer', {
+          input: this.textInput,  // 使用用户输入的文本作为请求体
         });
-        // 假设后端返回的回答在 response.data.answer
-        this.messages.push({ text: response.data.answer, type: 'bot' });
+
+        // 假设后端返回的回答在 response.data 中
+        const botResponse = response.data;  // 从响应中获取 AI 的回答
+        this.messages.push({ text: botResponse, type: 'bot' });  // 将 AI 回复添加到对话框
+
       } catch (error) {
         console.error('Error fetching response:', error);
         this.messages.push({ text: '无法获取回答，请稍后再试。', type: 'bot' });
       }
 
       // 清空输入框
-      this.userMessage = '';
+      this.textInput = '';
     },
+
+
      handleFileUpload(event) {
       const file = event.target.files[0];
       const reader = new FileReader();
@@ -164,16 +150,6 @@
         this.messages.push({ text: debugResult, type: 'bot' });
       }, 2000);
     },
-    sendText() {
-      if (!this.textInput) return;
-
-      this.messages.push({ text: this.textInput, type: 'user' });
-
-      setTimeout(() => {
-        const botResponse = `这是对文字输入 "${this.textInput}" 的回复`;
-        this.messages.push({ text: botResponse, type: 'bot' });
-      }, 1000);
-    },
     handleLogout() {
       alert('已退出登录');
       this.$router.push('/');
@@ -203,7 +179,7 @@ html, body {
 ========================= */
 .main-container {
   display: flex;
-  background-image: url('../../img/background.png');
+  background-image: url('../../../public/img/background.png');
   background-size: cover; /* 使图片覆盖整个容器 */
   background-position: center; /* 图片居中 */
   background-repeat: no-repeat; /* 不重复背景图片 */
@@ -435,7 +411,8 @@ button {
 
 .input-container{
    display: flex;
-  gap: 20px; /* 间距 */
+  gap: 40px; /* 间距 */
   margin-bottom: 20px; /* 与其他内容的间距 */
+  justify-content: space-between;
 }
 </style>

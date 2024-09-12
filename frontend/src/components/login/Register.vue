@@ -104,7 +104,7 @@ export default {
 <style scoped>
 .register-page {
   height: 100vh; /* 视口高度 */
-  background: url('../../img/background.png') no-repeat center center fixed; /* 背景图片 */
+  background: url('../../../public/img/background.png') no-repeat center center fixed; /* 背景图片 */
   background-size: cover; /* 背景图片覆盖 */
   display: flex; /* 使用 flexbox 居中 */
   justify-content: center; /* 水平居中 */

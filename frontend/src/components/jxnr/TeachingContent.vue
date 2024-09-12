@@ -67,13 +67,6 @@
           <button @click="deleteSelected">删除</button>
           <button @click="previewSelected">预览</button>
           <button @click="downloadSelected">下载</button>
-          <select v-model="generatedFileType">
-            <option value="全部">生成文件类型</option>
-            <option value=".txt">.txt</option>
-            <option value=".doc">.doc</option>
-            <option value=".pdf">.pdf</option>
-          </select>
-          <button @click="generateFiles">智能生成</button>
         </div>
       </div>
     </div>
@@ -335,7 +328,7 @@ html, body {
 ========================= */
 .main-container {
   display: flex;
-  background-image: url('../../img/background.png');
+  background-image: url('../../../public/img/background.png');
   background-size: cover; /* 使图片覆盖整个容器 */
   background-position: center; /* 图片居中 */
   background-repeat: no-repeat; /* 不重复背景图片 */
