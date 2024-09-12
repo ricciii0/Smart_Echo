@@ -225,7 +225,8 @@
 					});
 			},
 			refresh() {
-				this.$router.go(0);
+				this.getRecord();
+				this.getKnowledgeRecords();
 			},
 
 			// viewSubmission(record) {
