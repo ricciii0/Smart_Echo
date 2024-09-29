@@ -9,7 +9,7 @@ from flask_cors import CORS
 myllm = Blueprint('myllm', __name__)
 CORS(myllm, supports_credentials=True)  # 启用CORS，允许跨域请求
 
-client = OpenAI(api_key="sk-8af8506cfd8b4da7b31e1a3d8035c7ed", base_url="https://api.deepseek.com")
+client = OpenAI(api_key="", base_url="https://api.deepseek.com")
 quiz_template = """
 请根据给定的话题，生成1道单项选择题，以及对应的答案与解析,并将生成的问题，选项，答案，解释，按照JSON格式输出。
 输出结果的要求:
